@@ -11,28 +11,25 @@ int main(int argc, char* argv[]) {
 		ifstream file(argv[1]);
 		if (file) {
 			file >> n;
-			if (n > 0){
-				for (int i = 0; i < n; i++) {
-					file >> tmp;
-					m.push_back(tmp);
-				}
-				file.close();
-			}
-			else {
-				cout << "Incorrect amount of numbers!" << endl;
+			for (int i = 0; i < n; i++) {
+				file >> tmp;
+				m.push_back(tmp);
 			}
 		}
 		else {
-			cout << "Incorrect file name!" << endl;
+			cerr << "Incorrect file name!" << endl;
 		}
+		file.close();
 
 	}
 	else {
+		cout << "Enter amount of numbers:\t";
 		cin >> n;
 		if (n <= 0){
-			cout << "Incorrect amount of numbers!" << endl;
+			cerr << "Incorrect amount of numbers!" << endl;
 		}
 		else{
+			cout << "Enter numbers in line:\n";
 			for (int i = 0; i < n; i++) {
 				cin >> tmp;
 				m.push_back(tmp);
@@ -51,4 +48,9 @@ int main(int argc, char* argv[]) {
 	for (int i = 0; i < n; i++) {
 		cout << m[i] << endl;
 	}
+	ofstream outfile("output.txt");
+	for (int i = 0; i < n; i++) {
+		outfile << m[i] << endl;
+	}
+	outfile.close();
 }
