@@ -3,7 +3,7 @@
 
 #include "Tree.h"
 
-Tree::TreeNode::TreeNode(int data): ms_data(data), ms_length(default_length_of_leafs)
+TreeNode::TreeNode(int data): ms_data(data), ms_length(default_length_of_leafs)
 {
     leafs = new TreeNode*[default_length_of_leafs];
     for(int i = 0; i < ms_length; i++)
@@ -12,7 +12,7 @@ Tree::TreeNode::TreeNode(int data): ms_data(data), ms_length(default_length_of_l
     }
 }
 
-Tree::TreeNode::TreeNode(int data, int len): ms_data(data), ms_length(len)
+TreeNode::TreeNode(int data, int len): ms_data(data), ms_length(len)
 {
     if (len <= 0)
     {
@@ -27,7 +27,7 @@ Tree::TreeNode::TreeNode(int data, int len): ms_data(data), ms_length(len)
     }
 }
 
-Tree::TreeNode::TreeNode(const TreeNode &nodeCopy): ms_data(nodeCopy.ms_data), ms_length(nodeCopy.ms_length)
+TreeNode::TreeNode(const TreeNode &nodeCopy): ms_data(nodeCopy.ms_data), ms_length(nodeCopy.ms_length)
 {
     leafs = new TreeNode*[ms_length];
     for(int i = 0; i < ms_length; i++)
@@ -38,7 +38,7 @@ Tree::TreeNode::TreeNode(const TreeNode &nodeCopy): ms_data(nodeCopy.ms_data), m
     }
 }
 
-Tree::TreeNode::~TreeNode()
+TreeNode::~TreeNode()
 {
     for(int i = 0; i < ms_length; i++)
     {
@@ -67,7 +67,7 @@ Tree& Tree::operator= (const Tree& treeCopy)
     return *this;
 }
 
-Tree::TreeNode* Tree::getRoot() {return m_root;}
+TreeNode* Tree::getRoot() {return m_root;}
 
 int Tree::getValue(TreeNode* node) {return node->ms_data;}
 
@@ -99,9 +99,10 @@ std::string Tree::SubTreeAsString(TreeNode* node)  /// Print the subtree startin
         }
     }
 
-    std::string result = "{" + std::to_string(node->ms_data);
+    std::string result = "{" + std::to_string(node->ms_data) + ": ";
+    result += arrStr[0];
 
-    for(int i = 0; i < node->ms_length; i++)
+    for(int i = 1; i < node->ms_length; i++)
     {
         //if (arrStr[i] == "{}") continue; //skip empty {}
         result += ", " + arrStr[i];
