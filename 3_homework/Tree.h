@@ -4,22 +4,23 @@
 #include <iostream>
 #include <string>
 
+struct TreeNode
+{
+    int const default_length_of_leafs = 3;
+    int ms_data;
+    int ms_length;
+    TreeNode** leafs = nullptr;
+
+    TreeNode(int);
+    TreeNode(int, int);
+    TreeNode(const TreeNode&);
+    ~TreeNode();
+};
+
+
 class Tree
 {   
 private:
-
-    struct TreeNode
-    {
-        int const default_length_of_leafs = 3;
-        int ms_data;
-        int ms_length;
-        TreeNode** leafs = nullptr;
-        
-        TreeNode(int);
-        TreeNode(int, int);
-        TreeNode(const TreeNode &);
-        ~TreeNode();
-    };
     
     TreeNode* m_root;
 

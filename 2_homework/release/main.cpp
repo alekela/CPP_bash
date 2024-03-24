@@ -24,4 +24,5 @@ int main() {
 
     graph3 = graph2;
     cout << "Graph 3 after copying" << endl << graph3;
+    return 0;
 }
