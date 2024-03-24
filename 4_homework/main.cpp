@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <tuple>
+#include <cmath>
 
 using namespace std;
 typedef tuple <int, int, char> iic;
@@ -118,5 +119,5 @@ T calc(string eq, bool details) {
 int main() {
 	string eq = "2^(7/3)+82/19";
 	bool details = true;
-	std::cout << calc<float>(eq, details);
+	std::cout << calc<float>(eq, details) << std::endl;
 }
