@@ -35,7 +35,7 @@ T calc(string eq, bool details) {
 	int bracket_counter = 0;
 	int index_counter = 0;
 	for (int i = 0; i < eq.length(); i++) {
-		if (isdigit(eq[i]) || eq[i] == '.') {
+		if (isdigit(eq[i]) || eq[i] == '.' || (i == 0 && eq[i] == '-') || (i != 0 && eq[i] == '-' && eq[i - 1] == '(')) {
 			tmp_num.push_back(eq[i]);
 		}
 		else if (eq[i] == '(') {
@@ -116,8 +116,8 @@ T calc(string eq, bool details) {
 }
 
 
-int main() {
-	string eq = "2^(7/3)+82/19";
+int main(int argc, char* argv[]) {
+	string eq = argv[0];
 	bool details = true;
 	std::cout << calc<float>(eq, details) << std::endl;
 }
