@@ -117,7 +117,12 @@ T calc(string eq, bool details) {
 
 
 int main(int argc, char* argv[]) {
-	string eq = argv[0];
-	bool details = true;
-	std::cout << calc<float>(eq, details) << std::endl;
+	if (argc > 1) {
+		for (int i = 1; i < argc; i++) {
+			string eq = argv[i];
+			bool details = true;
+			std::cout << calc<float>(eq, details) << '\n' << std::endl;
+			
+		}
+	}
 }
