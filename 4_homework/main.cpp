@@ -132,23 +132,39 @@ int main(int argc, char* argv[]) {
 	string eq;
 	string outfilename = "";
 	string infilename = "";
-	if (check_cmd_line_flags(argc, argv, 'h')) {
-		// cout help info
-		return 0;
+
+	vector<string> new_argv;
+	for (int i = 1; i < argc; i++) {
+		new_argv.push_back(argv[i]);
 	}
-	if (check_cmd_line_flags(argc, argv, 'v')) {
-		details = true;
-	}
-	int tmp_index = check_cmd_line_flags(argc, argv, 'o');
-	if (tmp_index) {
-		if (tmp_index + 1 >= argc || (! argv[tmp_index + 1])) {
-			std::cerr << "No output file name!";
-			return -1;
+	argc--;
+	for (int i = 0; i < argc; i++) {
+		if (new_argv[i] == "-h"){
+			std::cout << "Some help info" << std::endl;
+			return 0;
 		}
-		outfilename = argv[tmp_index + 1];
+		else if (new_argv[i] == "-v") {
+			details = true;
+			new_argv.erase(new_argv.begin() + i);
+			i--;
+			argc--;
+		}
+		else if (new_argv[i] == "-o"){
+			if (i+1 < argc && isalpha(new_argv[i+1][0])) {
+				outfilename = new_argv[i+1];
+				new_argv.erase(new_argv.begin() + i);
+				new_argv.erase(new_argv.begin() + i);
+				i--;
+				argc -= 2;
+			}
+			else {
+				std::cerr << "No output file name!" << std::endl;
+			}
+		}
 	}
-	if (argc == 2 && isalpha(argv[1][0])) {
-		infilename = argv[1];
+
+	if (isalpha(new_argv[0][0])) {
+		infilename = new_argv[0];
 	}
 
 
@@ -161,7 +177,7 @@ int main(int argc, char* argv[]) {
 		}
 		if (outfilename.empty()) {
 			while (getline(fin, eq)) {
-				std::cout << calc<float>(eq, details) << std::endl;
+				std::cout << calc<float>(eq, details) << '\n' << std::endl;
 			}
 		}
 		else {
@@ -172,7 +188,7 @@ int main(int argc, char* argv[]) {
 				return -1;
 			}
 			while (getline(fin, eq)) {
-				fout << calc<float>(eq, details) << std::endl;
+				fout << calc<float>(eq, details) << '\n' << std::endl;
 			}
 			fout.close();
 		}
@@ -181,13 +197,8 @@ int main(int argc, char* argv[]) {
 
 	else { // reading from command line
 		if (outfilename.empty()) {
-			for (int i = 1; i < argc; i++) {
-				if (!(argv[i][0] == '-' && argv[i][1] == 'v')) {
-					std::cout << calc<float>(argv[i], details) << std::endl;
-				}
-				if (argv[i][0] == '-' && argv[i][1] == 'o') {
-					i++;
-				}
+			for (int i = 0; i < argc; i++) {
+				std::cout << calc<float>(new_argv[i], details) << '\n' << std::endl;
 			}
 		}
 		else {
@@ -197,13 +208,8 @@ int main(int argc, char* argv[]) {
 				std::cerr << "Can't open the output file!\n";
 				return -1;
 			}
-			for (int i = 1; i < argc; i++) {
-				if (argv[i] == "-o") {
-					i++;
-				}
-				else if (argv[i] != "-v") {
-					fout << calc<float>(argv[i], details) << std::endl;
-				}
+			for (int i = 0; i < argc; i++) {
+				fout << calc<float>(new_argv[i], details) << '\n' << std::endl;
 			}
 			fout.close();
 		}
