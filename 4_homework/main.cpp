@@ -182,11 +182,11 @@ int main(int argc, char* argv[]) {
 	else { // случай чтения из командной строки
 		if (outfilename.empty()) {
 			for (int i = 1; i < argc; i++) {
+				if (argv[i] != "-v") {
+					std::cout << calc<float>(eq, details) << std::endl;
+				}
 				if (argv[i] == "-o") {
 					i++;
-				}
-				else if (argv[i] != "-v") {
-					std::cout << calc<float>(eq, details) << std::endl;
 				}
 			}
 		}
