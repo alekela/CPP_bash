@@ -152,11 +152,11 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	if (!infilename.empty()) { // случай чтения из файла
+	if (!infilename.empty()) { // reading from file
 		ifstream fin;
 		fin.open(infilename);
 		if (!fin.is_open()) {
-			std::cerr << "Файл не может быть открыт!\n";
+			std::cerr << "Can't open the input file!\n";
 			return -1;
 		}
 		if (outfilename.empty()) {
@@ -168,7 +168,7 @@ int main(int argc, char* argv[]) {
 			ofstream fout;
 			fout.open(outfilename);
 			if (!fout.is_open()) {
-				std::cerr << "Файл не может быть открыт!\n";
+				std::cerr << "Can't open the output file!\n";
 				return -1;
 			}
 			while (getline(fin, eq)) {
@@ -179,7 +179,7 @@ int main(int argc, char* argv[]) {
 		fin.close();
 	}
 
-	else { // случай чтения из командной строки
+	else { // reading from command line
 		if (outfilename.empty()) {
 			for (int i = 1; i < argc; i++) {
 				if (argv[i] != "-v") {
@@ -194,7 +194,7 @@ int main(int argc, char* argv[]) {
 			ofstream fout;
 			fout.open(outfilename);
 			if (!fout.is_open()) {
-				std::cerr << "Файл не может быть открыт!\n";
+				std::cerr << "Can't open the output file!\n";
 				return -1;
 			}
 			for (int i = 1; i < argc; i++) {
