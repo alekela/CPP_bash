@@ -40,11 +40,27 @@ void find(TreeNode* root, int* max_tmp, int* max_ans, std::vector<TreeNode*>* li
 
 int main() 
 {
-    Tree myTree{9};
-    myTree.Insert(10, 2);
+    Tree myTree{1, 5};
+
+    myTree.Insert(10);
     myTree.Insert(11);
-    myTree.Insert(12, 1);
-    myTree.Insert(15, 2, myTree.getRoot(), 1);
+    myTree.Insert(12);
+    myTree.Insert(13);
+    myTree.Insert(14);
+
+    for (int j = 0; j < 5; j++){
+    	for (int i = 0; i < 3; i++){
+	    myTree.Insert(20 + (((i+1) * (j+1)) * 1023) % 10 , myTree.getRoot(), j);
+    	}
+    }
+
+    for (int i = 0; i < 5; i++) {
+	for (int j = 0; j < 3; j++) {
+		myTree.Insert(30 - (((i+1) + (j+1)) * 1023) % 10, myTree.getRoot()->leafs[i], j);
+	}
+    }
+
+
     std::cout << "Tree: ";
     myTree.Print();
 
