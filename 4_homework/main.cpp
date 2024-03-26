@@ -26,7 +26,7 @@ bool check_brackets(string eq) {
 template <typename T>
 int calc(string eq, bool details, ostream* out) {
 	if (not check_brackets(eq)) {
-		std::cerr << "Incorrect equation!";
+		std::cerr << "Incorrect equation!\n" << std::endl;
 		return -1;
 	}
 	vector<iic> signs;
@@ -112,7 +112,7 @@ int calc(string eq, bool details, ostream* out) {
 		numbers.erase(numbers.begin() + index + 1); // deleting number that we used
 	}
 
-	(*out) << numbers[0] << std::endl;
+	(*out) << "Answer: " << numbers[0] << '\n' << std::endl;
 	return 0;
 }
 
@@ -128,15 +128,11 @@ int check_cmd_line_flags(int argc, char* argv[], const char sym) {
 
 
 int main(int argc, char* argv[]) {
-	vector<string> new_argv;
-	for (int i = 1; i < argc; i++) {
-		new_argv.push_back(argv[i]);
-	}
 	bool details;
 	string eq;
 	string outfilename = "";
 	string infilename = "";
-
+	
 	vector<string> new_argv;
 	for (int i = 1; i < argc; i++) {
 		new_argv.push_back(argv[i]);
@@ -162,7 +158,7 @@ int main(int argc, char* argv[]) {
 				argc -= 2;
 			}
 			else {
-				std::cerr << "No output file name!" << std::endl;
+				std::cerr << "No output file name!\n" << std::endl;
 			}
 		}
 	}
@@ -176,14 +172,14 @@ int main(int argc, char* argv[]) {
 	if (!infilename.empty()) {
 		fin.open(infilename);
 		if (!fin.is_open()) {
-			std::cerr << "Can't open the input file!\n";
+			std::cerr << "Can't open the input file!\n" << std::endl;
 			return -1;
 		}
 	}
 	if (!outfilename.empty()) {
 		fout.open(outfilename);
 		if (!fout.is_open()) {
-			std::cerr << "Can't open the output file!\n";
+			std::cerr << "Can't open the output file!\n" << std::endl;
 			return -1;
 		}
 	}
