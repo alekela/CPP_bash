@@ -3,6 +3,7 @@
 #include <vector>
 #include <tuple>
 #include <cmath>
+#include <fstream>
 
 using namespace std;
 typedef tuple <int, int, char> iic;
@@ -116,13 +117,104 @@ T calc(string eq, bool details) {
 }
 
 
+int check_cmd_line_flags(int argc, char* argv[], const char* str) {
+	for (int i = 1; i < argc; i++) {
+		if (argv[i] == str) {
+			return i;
+		}
+	}
+	return 0;
+}
+
+
 int main(int argc, char* argv[]) {
+<<<<<<< HEAD
 	if (argc > 1) {
 		for (int i = 1; i < argc; i++) {
 			string eq = argv[i];
 			bool details = true;
 			std::cout << calc<float>(eq, details) << '\n' << std::endl;
 			
+=======
+	bool details;
+	string eq;
+	string outfilename = "";
+	string infilename = "";
+	if (check_cmd_line_flags(argc, argv, "-h")) {
+		// cout help info
+		return 0;
+	}
+	if (check_cmd_line_flags(argc, argv, "-v")) {
+		details = true;
+	}
+	int tmp_index = check_cmd_line_flags(argc, argv, "-o");
+	if (tmp_index) {
+		if (tmp_index + 1 >= argc || (! argv[tmp_index + 1])) {
+			std::cerr << "No output file name!";
+			return -1;
+		}
+		outfilename = argv[tmp_index + 1];
+	}
+	if (argc == 2 && isalpha(argv[1][0])) {
+		infilename = argv[1];
+	}
+
+
+	if (!infilename.empty()) { // случай чтения из файла
+		ifstream fin;
+		fin.open(infilename);
+		if (!fin.is_open()) {
+			std::cerr << "Файл не может быть открыт!\n";
+			return -1;
+		}
+		if (outfilename.empty()) {
+			while (getline(fin, eq)) {
+				std::cout << calc<float>(eq, details) << std::endl;
+			}
+		}
+		else {
+			ofstream fout;
+			fout.open(outfilename);
+			if (!fout.is_open()) {
+				std::cerr << "Файл не может быть открыт!\n";
+				return -1;
+			}
+			while (getline(fin, eq)) {
+				fout << calc<float>(eq, details) << std::endl;
+			}
+			fout.close();
+		}
+		fin.close();
+	}
+
+	else { // случай чтения из командной строки
+		if (outfilename.empty()) {
+			for (int i = 1; i < argc; i++) {
+				if (argv[i] == "-o") {
+					i++;
+				}
+				else if (argv[i] != "-v") {
+					std::cout << calc<float>(eq, details) << std::endl;
+				}
+			}
+		}
+		else {
+			ofstream fout;
+			fout.open(outfilename);
+			if (!fout.is_open()) {
+				std::cerr << "Файл не может быть открыт!\n";
+				return -1;
+			}
+			for (int i = 1; i < argc; i++) {
+				if (argv[i] == "-o") {
+					i++;
+				}
+				else if (argv[i] != "-v") {
+					fout << calc<float>(eq, details) << std::endl;
+				}
+			}
+			fout.close();
+>>>>>>> 6155b53146a0caea20e917d99e59ed43bca03559
 		}
 	}
 }
