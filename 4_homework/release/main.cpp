@@ -26,7 +26,7 @@ bool check_brackets(string eq) {
 template <typename T>
 int calc(string eq, bool details, ostream* out) {
 	if (not check_brackets(eq)) {
-		std::cerr << "Incorrect equation!\n" << std::endl;
+		(*out) << "Incorrect equation!\n" << std::endl;
 		return -1;
 	}
 	vector<iic> signs;
