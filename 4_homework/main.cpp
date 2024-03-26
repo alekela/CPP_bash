@@ -127,7 +127,9 @@ int check_cmd_line_flags(int argc, char* argv[], const char* str) {
 }
 
 
-int main(int argc, char* argv[]) {
+int main() {
+	int argc = 2;
+	char* argv[] = {" ", "1+2", "2+3"};
 	bool details;
 	string eq;
 	string outfilename = "";
@@ -180,6 +182,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	else { // reading from command line
+		std::cout << outfilename.empty();
 		if (outfilename.empty()) {
 			for (int i = 1; i < argc; i++) {
 				if (argv[i] != "-v") {
