@@ -117,9 +117,9 @@ T calc(string eq, bool details) {
 }
 
 
-int check_cmd_line_flags(int argc, char* argv[], const char* str) {
+int check_cmd_line_flags(int argc, char* argv[], const char sym) {
 	for (int i = 1; i < argc; i++) {
-		if (argv[i] == str) {
+		if (argv[i][0] == '-' && argv[i][1] == sym) {
 			return i;
 		}
 	}
@@ -132,14 +132,14 @@ int main(int argc, char* argv[]) {
 	string eq;
 	string outfilename = "";
 	string infilename = "";
-	if (check_cmd_line_flags(argc, argv, "-h")) {
+	if (check_cmd_line_flags(argc, argv, 'h')) {
 		// cout help info
 		return 0;
 	}
-	if (check_cmd_line_flags(argc, argv, "-v")) {
+	if (check_cmd_line_flags(argc, argv, 'v')) {
 		details = true;
 	}
-	int tmp_index = check_cmd_line_flags(argc, argv, "-o");
+	int tmp_index = check_cmd_line_flags(argc, argv, 'o');
 	if (tmp_index) {
 		if (tmp_index + 1 >= argc || (! argv[tmp_index + 1])) {
 			std::cerr << "No output file name!";
@@ -183,10 +183,10 @@ int main(int argc, char* argv[]) {
 		std::cout << outfilename.empty();
 		if (outfilename.empty()) {
 			for (int i = 1; i < argc; i++) {
-				if (argv[i] != "-v") {
+				if (!(argv[i][0] == '-' && argv[i][1] == 'v')) {
 					std::cout << calc<float>(argv[i], details) << std::endl;
 				}
-				if (argv[i] == "-o") {
+				if (argv[i][0] == '-' && argv[i][1] == 'o') {
 					i++;
 				}
 			}
