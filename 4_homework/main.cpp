@@ -180,10 +180,11 @@ int main(int argc, char* argv[]) {
 	}
 
 	else { // reading from command line
+		std::cout << outfilename.empty();
 		if (outfilename.empty()) {
 			for (int i = 1; i < argc; i++) {
 				if (argv[i] != "-v") {
-					std::cout << calc<float>(eq, details) << std::endl;
+					std::cout << calc<float>(argv[i], details) << std::endl;
 				}
 				if (argv[i] == "-o") {
 					i++;
@@ -202,7 +203,7 @@ int main(int argc, char* argv[]) {
 					i++;
 				}
 				else if (argv[i] != "-v") {
-					fout << calc<float>(eq, details) << std::endl;
+					fout << calc<float>(argv[i], details) << std::endl;
 				}
 			}
 			fout.close();
