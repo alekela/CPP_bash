@@ -24,10 +24,10 @@ bool check_brackets(string eq) {
 
 
 template <typename T>
-T calc(string eq, bool details) {
+int calc(string eq, bool details, ostream* out) {
 	if (not check_brackets(eq)) {
 		std::cerr << "Incorrect equation!";
-		return 0;
+		return -1;
 	}
 	vector<iic> signs;
 	vector<T> numbers;
@@ -76,15 +76,13 @@ T calc(string eq, bool details) {
 		}
 	}
 
-	//for (int i = 0; i < signs.size(); i++) 
-	//	std::cout << get<0>(signs[i]) << " " << get<1>(signs[i]) << " " << get<2>(signs[i]) << endl;
-
 	int index;
+
 	for (int i = 0; i < signs.size(); i++) {
 		index = get<1>(signs[i]);
 
 		if (details) { // check if user wants more detailed info (flag -v)
-			std::cout << numbers[index] << ' ' << get<2>(signs[i]) << ' ' << numbers[index + 1] << " = ";
+			(*out) << numbers[index] << ' ' << get<2>(signs[i]) << ' ' << numbers[index + 1] << " = ";
 		}
 		if (get<2>(signs[i]) == '+') {
 			numbers[index] = numbers[index] + numbers[index + 1];
@@ -103,7 +101,7 @@ T calc(string eq, bool details) {
 		}
 
 		if (details) { // check if user wants more detailed info (flag -v)
-			std::cout << numbers[index] << std::endl;
+			(*out) << numbers[index] << std::endl;
 		}
 
 		for (int j = i + 1; j < signs.size(); j++) { // deleting from numbers so changing indexes in signs
@@ -113,7 +111,9 @@ T calc(string eq, bool details) {
 		}
 		numbers.erase(numbers.begin() + index + 1); // deleting number that we used
 	}
-	return numbers[0];
+
+	(*out) << numbers[0] << std::endl;
+	return 0;
 }
 
 
@@ -166,56 +166,58 @@ int main(int argc, char* argv[]) {
 			}
 		}
 	}
-
 	if (isalpha(new_argv[0][0])) {
 		infilename = new_argv[0];
 	}
 
-
-	if (!infilename.empty()) { // reading from file
-		ifstream fin;
+	// opening read/write files
+	ifstream fin;
+	ofstream fout;
+	if (!infilename.empty()) {
 		fin.open(infilename);
 		if (!fin.is_open()) {
 			std::cerr << "Can't open the input file!\n";
 			return -1;
 		}
+	}
+	if (!outfilename.empty()) {
+		fout.open(outfilename);
+		if (!fout.is_open()) {
+			std::cerr << "Can't open the output file!\n";
+			return -1;
+		}
+	}
+
+	if (!infilename.empty()) { // reading from file
 		if (outfilename.empty()) {
 			while (getline(fin, eq)) {
-				std::cout << calc<float>(eq, details) << '\n' << std::endl;
+				calc<float>(eq, details, &cout);
 			}
 		}
 		else {
-			ofstream fout;
-			fout.open(outfilename);
-			if (!fout.is_open()) {
-				std::cerr << "Can't open the output file!\n";
-				return -1;
-			}
 			while (getline(fin, eq)) {
-				fout << calc<float>(eq, details) << '\n' << std::endl;
+				calc<float>(eq, details, &fout);
 			}
-			fout.close();
 		}
-		fin.close();
 	}
 
 	else { // reading from command line
 		if (outfilename.empty()) {
 			for (int i = 0; i < argc; i++) {
-				std::cout << calc<float>(new_argv[i], details) << '\n' << std::endl;
+				calc<float>(new_argv[i], details, &cout);
 			}
 		}
 		else {
-			ofstream fout;
-			fout.open(outfilename);
-			if (!fout.is_open()) {
-				std::cerr << "Can't open the output file!\n";
-				return -1;
-			}
 			for (int i = 0; i < argc; i++) {
-				fout << calc<float>(new_argv[i], details) << '\n' << std::endl;
+				calc<float>(new_argv[i], details, &fout);
 			}
-			fout.close();
 		}
+	}
+
+	if (fin.is_open()) {
+		fin.close();
+	}
+	if (fout.is_open()) {
+		fout.close();
 	}
 }
