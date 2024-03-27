@@ -46,6 +46,11 @@ int calc(string eq, bool details, ostream* out) {
 			bracket_counter -= 3;
 		}
 		else if (eq[i] == '+' || eq[i] == '-' || eq[i] == '/' || eq[i] == '*' || eq[i] == '^') {
+			if (tmp_num.empty()){
+				std::cerr << "Incorrect equation!" << std::endl;
+				return -1;
+			}
+
 			tmp_num2 = stof(tmp_num);
 			tmp_num.erase();
 			numbers.push_back(tmp_num2);
@@ -64,6 +69,10 @@ int calc(string eq, bool details, ostream* out) {
 			signs.push_back(t);
 		}
 	}
+	if (tmp_num.empty()){
+		std::cerr << "Incorrect equation!" << std::endl;
+		return -1;
+	}
 	tmp_num2 = stof(tmp_num);
 	tmp_num.erase();
 	numbers.push_back(tmp_num2);
@@ -77,6 +86,10 @@ int calc(string eq, bool details, ostream* out) {
 	}
 
 	int index;
+	if (signs.size() + 1 != numbers.size()) {
+		std::cerr << "Incorrect equation!" << std::endl;
+		return -1;
+	}
 
 	for (int i = 0; i < signs.size(); i++) {
 		index = get<1>(signs[i]);
@@ -138,6 +151,10 @@ int main(int argc, char* argv[]) {
 		new_argv.push_back(argv[i]);
 	}
 	argc--;
+	if (argc == 0) {
+		std::cerr << "No arguments!" << std::endl;
+		return -1;
+	}
 	for (int i = 0; i < argc; i++) {
 		if (new_argv[i] == "-h"){
 			std::cout << "usage: ./calc[arguments]\tcalculate expressions\n\t";
@@ -220,4 +237,5 @@ int main(int argc, char* argv[]) {
 	if (fout.is_open()) {
 		fout.close();
 	}
+	return 0;
 }
