@@ -140,7 +140,11 @@ int main(int argc, char* argv[]) {
 	argc--;
 	for (int i = 0; i < argc; i++) {
 		if (new_argv[i] == "-h"){
-			std::cout << "Some help info" << std::endl;
+			std::cout << "usage: ./calc[arguments]\tcalculate expressions\n\t";
+			std::cout << "or : ./calc[filename] - read expressions from file\n\t";
+			std::cout << "or : ./calc[arguments] -o [filename] - write output to file\n\t" << std::endl;
+			std::cout << "Arguments :\n- h\t\t\tget help\n";
+			std::cout << "- v\t\t\twrite details of calculating\n- o [filename]\t\t\twrite answers to file" << std::endl;
 			return 0;
 		}
 		else if (new_argv[i] == "-v") {
