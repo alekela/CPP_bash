@@ -4,11 +4,12 @@
 #include <ctime>
 #include <unistd.h>
 #include <fstream>
+#include <vector>
 
 
 void InitCurses();                                  //Start up ncurses
 void CreateWindows(int y, int x, int y0, int x0);
-void ExitProgram(const char *message);
+void ExitProgram(const char *message, int ans);
 
 
 WINDOW * win;
@@ -18,38 +19,34 @@ enum { Wall = 1, Normal, Pellet, PowerUp, GhostWall, Ghost1, Ghost2, Ghost3, Gho
 
 class Level {
 private:
-    const size_t width, height;
-    int levelsyms[height][width];
+    size_t width, height;
+    std::vector<std::vector<int>> levelsyms;
 
 public:
     Level(int _height=28, int _width=29) : width(_width), height(_height) {
         set_level("level1.txt");
     }
 
-    int set_level(std::string filename) {
-        ifstream infile;
+    void set_level(std::string filename) {
+	std::ifstream infile;
         infile.open(filename);
         if (!infile.is_open()) {
-            std::cerr << "Can't open file " << filename << ": cannot find file";
-            return -1;
+            ExitProgram("Can't open file\n", -1);
         }
         std::string tmp;
         int counter = 0;
         while (getline(infile, tmp)) {
             if (counter >= height) {
-                std::cerr << "Error in file: mismatch in number of lines";
-                return -1;
+            	ExitProgram("Error in file: mismatch in number of lines\n", -1);
             }
             if (tmp.size() != width) {
-                std::cerr << "Error in file in line number " << counter+1 << ": mismatch in width";
-                return -1;
+            	ExitProgram("Error in file: mismatch in width\n", -1);
             }
             for (int i = 0; i < width; i++) {
                 levelsyms[counter][i] = tmp[i];
             }
             counter++;
         }
-        return 0;
     }
 
     void DrawLevel() {
@@ -123,7 +120,7 @@ public:
         pos_y = y;
     }
 
-}
+};
 
 
 int main() {
@@ -136,7 +133,7 @@ int main() {
     level.DrawLevel();
     wrefresh(win);
     sleep(5);
-    ExitProgram("Bye-bye");
+    ExitProgram("Bye-bye", 0);
     return 0;
 }
 
@@ -150,7 +147,7 @@ void InitCurses() {
  noecho();
  if (!has_colors()) {
         std::cerr << "Terminal does not support colors!";
-        ExitProgram("Error");
+        ExitProgram("Error", -1);
  }
     start_color();
 
@@ -173,9 +170,9 @@ void CreateWindows(int y, int x, int y0, int x0) {
  //status = newwin(3, x - 1, y + y0 + 1, 1);
 }
 
-void ExitProgram(const char *message) {
+void ExitProgram(const char *message, int ans) {
  endwin();
- printf("%s\n", message);
- exit(0);
+ std::cout << message;
+ exit(ans);
 }
 
