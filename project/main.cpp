@@ -19,11 +19,11 @@ enum { Wall = 1, Normal, Pellet, PowerUp, GhostWall, Ghost1, Ghost2, Ghost3, Gho
 
 class Level {
 private:
-    size_t width, height;
+    const int width, height;
     std::vector<std::vector<int>> levelsyms;
 
 public:
-    Level(int _height=28, int _width=29) : width(_width), height(_height) {
+    Level(const int _height=29, const int _width=28) : width(_width), height(_height) {
         set_level("level1.txt");
     }
 
@@ -42,8 +42,9 @@ public:
             if (tmp.size() != width) {
             	ExitProgram("Error in file: mismatch in width\n", -1);
             }
+	    levelsyms.push_back({});
             for (int i = 0; i < width; i++) {
-                levelsyms[counter][i] = tmp[i];
+                levelsyms[counter].push_back(tmp[i] - '0');
             }
             counter++;
         }
@@ -146,8 +147,7 @@ void InitCurses() {
  cbreak();
  noecho();
  if (!has_colors()) {
-        std::cerr << "Terminal does not support colors!";
-        ExitProgram("Error", -1);
+        ExitProgram("Terminal does not support colors!", -1);
  }
     start_color();
 
