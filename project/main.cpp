@@ -14,7 +14,7 @@ void ExitProgram(const char *message, int ans);
 
 WINDOW * win;
 WINDOW * status;
-enum { Wall = 1, Normal, Pellet, PowerUp, GhostWall, Ghost1, Ghost2, Ghost3, Ghost4, BlueGhost, Pacman };
+enum { Empty = 0, Wall = 1, Pellet, Pacman };
 
 
 class Player {
@@ -23,15 +23,21 @@ private:
     int pos_x, pos_y;
 
 public:
-    int get_pos_x() {
+    int score;
+
+    Player() {
+	    score = 0;
+    }
+
+    int get_x() {
         return pos_x;
     }
 
-    int get_pos_y() {
+    int get_y() {
         return pos_y;
     }
 
-    void movePlayer(int y, int x) {
+    void set_pos(int y, int x) {
 	    pos_y = y;
 	    pos_x = x;
     }
@@ -42,10 +48,10 @@ public:
 class Level {
 private:
     const int width, height;
-    std::vector<std::vector<int>> levelsyms;
-    Player player;
 
 public:
+    std::vector<std::vector<int>> field;
+
     Level(const int _height=29, const int _width=28) : width(_width), height(_height) {
         set_level("level1.txt");
     }
@@ -65,12 +71,16 @@ public:
             if (tmp.size() != width) {
             	ExitProgram("Error in file: mismatch in width", -1);
             }
-	    levelsyms.push_back({});
+	    field.push_back({});
             for (int i = 0; i < width; i++) {
-                levelsyms[counter].push_back(tmp[i] - '0');
+                field[counter].push_back(tmp[i] - '0');
             }
             counter++;
         }
+    }
+
+    void set_sym(int y, int x, int sym) {
+	    field[y][x] = sym;
     }
 
     void drawLevel() {
@@ -80,31 +90,32 @@ public:
         // display level
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
-                if (levelsyms[i][j] == 0) {
+		int tmp = field[i][j];
+                if (tmp == 0) {
                     chr = ' ';
                     attr = A_NORMAL;
-                    wattron(win, COLOR_PAIR(Normal));
+                    wattron(win, COLOR_PAIR(Empty));
                 }
-                else if (levelsyms[i][j] == 1) {
+                else if (tmp == 1) {
                     chr = ' ';
                     attr = A_NORMAL;
                     wattron(win, COLOR_PAIR(Wall));
                 }
-                else if (levelsyms[i][j] == 2) {
+                else if (tmp == 2) {
                     chr = '.';
                     attr = A_NORMAL;
                     wattron(win, COLOR_PAIR(Pellet));
                 }
-                else if (levelsyms[i][j] == 3) {
+                /*else if (tmp == 3) {
                     chr = '*';
                     attr = A_BOLD;
                     wattron(win, COLOR_PAIR(PowerUp));
                 }
-                else if (levelsyms[i][j] == 4) {
+                else if (tmp == 4) {
                     chr = ' ';
                     attr = A_NORMAL;
                     wattron(win, COLOR_PAIR(GhostWall));
-                }
+                }*/
                 mvwaddch(win, i, j, chr | attr);
             }
         }
@@ -119,10 +130,31 @@ public:
 
         wrefresh(win);
     }
+};
 
-    void check_collisions() {
 
-    }
+class Game {
+private:
+	Player player;
+	Level level;
+public:
+	void move_all(int dy, int dx) {
+		int ny = player.get_y() + dy;
+		int nx = player.get_x() + dx;
+		if (level.field[ny][nx] != 1) {
+			player.set_pos(ny, nx);
+			if (level.field[player.get_y()][player.get_x()] == 2) {
+				player.score++;
+			}
+			level.set_sym(player.get_y(), player.get_x(), Pacman);
+			level.set_sym(player.get_y() - dy, player.get_x() - dx, Empty);
+		}
+
+		// move ghosts and if they are in the cell of pacman -life
+		
+		level.drawLevel();
+	}
+
 };
 
 
@@ -132,6 +164,9 @@ int main() {
     win_height = 29;
     win_width = 28;
     CreateWindows(win_height, win_width, 1, 1);
+    Game game;
+
+    // main cycle of Game 
     Level level(win_height, win_width);
     level.drawLevel();
     wrefresh(win);
@@ -154,16 +189,16 @@ void InitCurses() {
     start_color();
 
 
- init_pair(Normal,    COLOR_WHITE,   COLOR_BLACK);
+ init_pair(Empty,    COLOR_WHITE,   COLOR_BLACK);
  init_pair(Wall,      COLOR_WHITE,   COLOR_WHITE);
  init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
- init_pair(PowerUp,   COLOR_BLUE,    COLOR_BLACK);
+ /*init_pair(PowerUp,   COLOR_BLUE,    COLOR_BLACK);
  init_pair(GhostWall, COLOR_WHITE,   COLOR_CYAN);
  init_pair(Ghost1,    COLOR_RED,     COLOR_BLACK);
  init_pair(Ghost2,    COLOR_CYAN,    COLOR_BLACK);
  init_pair(Ghost3,    COLOR_MAGENTA, COLOR_BLACK);
  init_pair(Ghost4,    COLOR_YELLOW,  COLOR_BLACK);
- init_pair(BlueGhost, COLOR_BLUE,    COLOR_RED);
+ init_pair(BlueGhost, COLOR_BLUE,    COLOR_RED);*/
  init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
 }
 
