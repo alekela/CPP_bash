@@ -17,10 +17,33 @@ WINDOW * status;
 enum { Wall = 1, Normal, Pellet, PowerUp, GhostWall, Ghost1, Ghost2, Ghost3, Ghost4, BlueGhost, Pacman };
 
 
+class Player {
+private:
+    size_t lifes;
+    int pos_x, pos_y;
+
+public:
+    int get_pos_x() {
+        return pos_x;
+    }
+
+    int get_pos_y() {
+        return pos_y;
+    }
+
+    void movePlayer(int y, int x) {
+	    pos_y = y;
+	    pos_x = x;
+    }
+
+};
+
+
 class Level {
 private:
     const int width, height;
     std::vector<std::vector<int>> levelsyms;
+    Player player;
 
 public:
     Level(const int _height=29, const int _width=28) : width(_width), height(_height) {
@@ -31,16 +54,16 @@ public:
 	std::ifstream infile;
         infile.open(filename);
         if (!infile.is_open()) {
-            ExitProgram("Can't open file\n", -1);
+            ExitProgram("Can't open file", -1);
         }
         std::string tmp;
         int counter = 0;
         while (getline(infile, tmp)) {
             if (counter >= height) {
-            	ExitProgram("Error in file: mismatch in number of lines\n", -1);
+            	ExitProgram("Error in file: mismatch in number of lines", -1);
             }
             if (tmp.size() != width) {
-            	ExitProgram("Error in file: mismatch in width\n", -1);
+            	ExitProgram("Error in file: mismatch in width", -1);
             }
 	    levelsyms.push_back({});
             for (int i = 0; i < width; i++) {
@@ -50,7 +73,7 @@ public:
         }
     }
 
-    void DrawLevel() {
+    void drawLevel() {
         char chr;
         int attr;
 
@@ -96,31 +119,10 @@ public:
 
         wrefresh(win);
     }
-};
 
+    void check_collisions() {
 
-class Player {
-private:
-    size_t lifes;
-    int pos_x, pos_y;
-
-public:
-    int get_pos_x() {
-        return pos_x;
     }
-
-    int get_pos_y() {
-        return pos_y;
-    }
-
-    void set_pos_x(int x) {
-        pos_x = x;
-    }
-
-    void set_pos_y(int y) {
-        pos_y = y;
-    }
-
 };
 
 
@@ -131,7 +133,7 @@ int main() {
     win_width = 28;
     CreateWindows(win_height, win_width, 1, 1);
     Level level(win_height, win_width);
-    level.DrawLevel();
+    level.drawLevel();
     wrefresh(win);
     sleep(5);
     ExitProgram("Bye-bye", 0);
@@ -172,7 +174,7 @@ void CreateWindows(int y, int x, int y0, int x0) {
 
 void ExitProgram(const char *message, int ans) {
  endwin();
- std::cout << message;
+ std::cout << message << std::endl;
  exit(ans);
 }
 
