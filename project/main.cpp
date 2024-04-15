@@ -14,21 +14,20 @@ void ExitProgram(const char *message, int ans);
 
 WINDOW * win;
 WINDOW * status;
+
 enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3};
 
 
 class Player {
 private:
-    size_t lifes;
     int pos_x, pos_y;
 
 public:
     int score;
+    size_t lifes;
 
     Player() {
 	    score = 0;
-	    pos_x = 13;
-	    pos_y = 22;
     }
 
     int get_x() {
@@ -60,6 +59,15 @@ public:
 
     Level() : width(28), height(29) {
         set_level("level1.txt");
+    }
+
+
+    int get_height() {
+        return height;
+    }
+
+    int get_width() {
+        return width;
     }
 
     void set_level(std::string filename) {
@@ -100,7 +108,7 @@ public:
                 if (tmp == 0) {
                     chr = ' ';
                     attr = A_INVIS;
-                    wattron(win, COLOR_PAIR(Empty));
+                    wattron(win, COLOR_PAIR(Pellet));
                 }
                 else if (tmp == 1) {
                     chr = ' ';
@@ -137,10 +145,9 @@ public:
         //Display ghosts
 
         //OR display vulnerable ghosts
-
-        //Display Pacman
         wrefresh(win);
     }
+
 };
 
 
@@ -148,9 +155,21 @@ class Game {
 private:
 	Player player;
 	Level level;
+	int max_score = 0;
 public:
 
-    Game() {}
+    Game(int height, int width) : level(height, width) {
+        for (int i = 0; i < level.get_height(); i++) {
+            for (int j = 0; j < level.get_width(); j++) {
+                if (level.field[i][j] == 3) {
+                    player.set_pos(i, j);
+                }
+                if (level.field[i][j] == 2) {
+                    max_score++;
+                }
+            }
+        }
+    }
 
 	void move_all(int dy, int dx) {
 		int ny = player.get_y() + dy;
@@ -160,8 +179,8 @@ public:
 			if (level.field[player.get_y()][player.get_x()] == Pellet) {
 				player.score++;
 			}
-			level.set_sym(player.get_y(), player.get_x(), Pacman);
 			level.set_sym(player.get_y() - dy, player.get_x() - dx, Empty);
+            level.set_sym(player.get_y(), player.get_x(), Pacman);
 		}
 
 		// move ghosts and if they are in the cell of pacman -life
@@ -169,6 +188,21 @@ public:
 
 	void draw() {
         level.drawLevel();
+	}
+
+    void display_status() {
+        wmove(status, 1, 1);
+        /*wattron(status, COLOR_PAIR(Pacman));
+        for(a = 0; a < Lives; a++)
+            wprintw(status, "C ");
+        wprintw(status, "  ");
+        wattroff(status, COLOR_PAIR(Pacman));*/
+        mvwprintw(status, 1, 1, "Score: %d ", player.score);
+        wrefresh(status);
+    }
+
+	bool check_end() {
+        return (player.score >= max_score);
 	}
 
 };
@@ -180,12 +214,12 @@ int main() {
     win_height = 29;
     win_width = 28;
     CreateWindows(win_height, win_width, 1, 1);
-    Game game;
+    Game game(win_height, win_width);
     char ch;
     int dx, dy;
-    bool flag = true;
-    while (flag) {
+    while (true) {
         ch = getch();
+
         dx = 0;
         dy = 0;
         if (ch == 'Q' || ch == 'q') {
@@ -205,6 +239,11 @@ int main() {
         }
         game.move_all(dy, dx);
         game.draw();
+        game.display_status();
+        if (game.check_end()) {
+            ExitProgram("You 've won!!!", 0);
+            break;
+        }
         usleep(10000);
     }
     ExitProgram("Bye-bye", 0);
@@ -224,8 +263,7 @@ void InitCurses() {
     }
     start_color();
 
-
-    init_pair(Empty,    COLOR_BLACK,   COLOR_BLACK);
+    init_pair(0, COLOR_WHITE, COLOR_BLACK);
     init_pair(Wall,      COLOR_WHITE,   COLOR_WHITE);
     init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
     init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
@@ -240,7 +278,8 @@ void InitCurses() {
 
 void CreateWindows(int y, int x, int y0, int x0) {
     win = newwin(y, x, y0, x0);
-    //status = newwin(3, x - 1, y + y0 + 1, 1);
+    status = newwin(3, x, y + y0, 1);
+    box(status, 0, 0);
 }
 
 void ExitProgram(const char *message, int ans) {
