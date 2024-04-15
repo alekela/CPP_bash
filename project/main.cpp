@@ -49,7 +49,7 @@ public:
 class Level {
 private:
     const int width, height;
-    char chrbuf = 'd';
+    char chrbuf = '>';
 
 public:
     std::vector<std::vector<int>> field;
@@ -123,14 +123,10 @@ public:
                 }
                 else if (tmp == 3) {
                     if (player_dir == 0) {chr = chrbuf;}
-<<<<<<< HEAD
-                    if (player_dir == -2) {chr = 'w';} // {chr = '△';}
-=======
-                    if (player_dir == -2) {chr = 'w';} //{chr = '∧';}
->>>>>>> c7b3b8e5de54745d34915734796a89daf643908f
-                    if (player_dir == -1) {chr = 'a';} //{chr = '◁';}
-                    if (player_dir == 1) {chr = 'd';} //{chr = '▷';}
-                    if (player_dir == 2) {chr = 's';}  //{chr = '▽';}
+                    if (player_dir == -2) {chr = '^';}
+                    if (player_dir == -1) {chr = '<';}
+                    if (player_dir == 1) {chr = '>';}
+                    if (player_dir == 2) {chr = 'v';}
                     chrbuf = chr;
                     attr = A_NORMAL;
                     wattron(win, COLOR_PAIR(Pacman));
