@@ -123,7 +123,7 @@ public:
                 }
                 else if (tmp == 3) {
                     if (player_dir == 0) {chr = chrbuf;}
-                    if (player_dir == -2) {chr = 'w';} //{chr = '△';}
+                    if (player_dir == -2) {chr = 'w';} // {chr = '△';}
                     if (player_dir == -1) {chr = 'a';} //{chr = '◁';}
                     if (player_dir == 1) {chr = 'd';} //{chr = '▷';}
                     if (player_dir == 2) {chr = 's';}  //{chr = '▽';}
