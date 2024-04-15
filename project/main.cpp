@@ -241,7 +241,7 @@ int main() {
         game.draw();
         game.display_status();
         if (game.check_end()) {
-            ExitProgram("You 've won!!!", 0);
+            ExitProgram("You've won!!!", 0);
             break;
         }
         usleep(10000);
@@ -279,7 +279,6 @@ void InitCurses() {
 void CreateWindows(int y, int x, int y0, int x0) {
     win = newwin(y, x, y0, x0);
     status = newwin(3, x, y + y0, 1);
-    box(status, 0, 0);
 }
 
 void ExitProgram(const char *message, int ans) {
