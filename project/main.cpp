@@ -49,6 +49,7 @@ public:
 class Level {
 private:
     const int width, height;
+    char chrbuf = 'd';
 
 public:
     std::vector<std::vector<int>> field;
@@ -97,7 +98,7 @@ public:
 	    field[y][x] = sym;
     }
 
-    void drawLevel() {
+    void drawLevel(int player_dir) {
         char chr;
         int attr;
 
@@ -121,7 +122,12 @@ public:
                     wattron(win, COLOR_PAIR(Pellet));
                 }
                 else if (tmp == 3) {
-                    chr = 'C';
+                    if (player_dir == 0) {chr = chrbuf;}
+                    if (player_dir == -2) {chr = 'w';} //{chr = '△';}
+                    if (player_dir == -1) {chr = 'a';} //{chr = '◁';}
+                    if (player_dir == 1) {chr = 'd';} //{chr = '▷';}
+                    if (player_dir == 2) {chr = 's';}  //{chr = '▽';}
+                    chrbuf = chr;
                     attr = A_NORMAL;
                     wattron(win, COLOR_PAIR(Pacman));
                 }
@@ -161,10 +167,10 @@ public:
     Game(int height, int width) : level(height, width) {
         for (int i = 0; i < level.get_height(); i++) {
             for (int j = 0; j < level.get_width(); j++) {
-                if (level.field[i][j] == 3) {
+                if (level.field[i][j] == Pacman) {
                     player.set_pos(i, j);
                 }
-                if (level.field[i][j] == 2) {
+                if (level.field[i][j] == Pellet) {
                     max_score++;
                 }
             }
@@ -172,22 +178,37 @@ public:
     }
 
 	void move_all(int dy, int dx) {
-		int ny = player.get_y() + dy;
-		int nx = player.get_x() + dx;
+        int x = player.get_x();
+        int y = player.get_y();
+		int ny = y + dy;
+		int nx = x + dx;
+
+        if (nx < 0) {
+            nx = level.get_width() - 1;
+        }
+        if (ny < 0) {
+            ny = level.get_height() - 1;
+        }
+        if (nx >= level.get_width()) {
+            nx = 0;
+        }
+        if (ny >= level.get_height()) {
+            ny = 0;
+        }
 		if (level.field[ny][nx] != Wall) {
-			player.set_pos(ny, nx);
-			if (level.field[player.get_y()][player.get_x()] == Pellet) {
+			if (level.field[ny][nx] == Pellet) {
 				player.score++;
 			}
-			level.set_sym(player.get_y() - dy, player.get_x() - dx, Empty);
-            level.set_sym(player.get_y(), player.get_x(), Pacman);
+            player.set_pos(ny, nx);
+			level.set_sym(y, x, Empty);
+            level.set_sym(ny, nx, Pacman);
 		}
 
 		// move ghosts and if they are in the cell of pacman -life
 	}
 
-	void draw() {
-        level.drawLevel();
+	void draw(int player_dir) {
+        level.drawLevel(player_dir);
 	}
 
     void display_status() {
@@ -238,7 +259,7 @@ int main() {
             dx = 1;
         }
         game.move_all(dy, dx);
-        game.draw();
+        game.draw(2 * dy + dx);
         game.display_status();
         if (game.check_end()) {
             ExitProgram("You've won!!!", 0);
