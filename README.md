@@ -5,6 +5,7 @@ need to be done:
 2) moving player (with rotating) on the level and "thorus" level✅
 3) collecting pellets and counting score, ending level when score is full✅
 4) adding monsters, their movements and adding endgame
-5) add bonuses (bullets)
-6) add menu
-7) add settings
+5) remake drawing figures (put draw functions in figures classes)
+6) add bonuses (bullets)
+7) add menu
+8) add settings
