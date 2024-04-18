@@ -32,7 +32,7 @@ public:
 
     Player() {
 	    score = 0;
-	    lifes = 10;
+	    lifes = 5;
     }
 
     int get_x() {
