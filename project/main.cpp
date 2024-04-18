@@ -246,9 +246,11 @@ public:
         }
     }
 
-    void move_all(int dy, int dx, int hard_level) {
+    void move_all(int dy, int dx, int hard_level, int counter) {
         move_player(dy, dx);
-        move_ghosts(hard_level);
+	if (counter == 20) {
+        	move_ghosts(hard_level);
+	}
     }
 
 	void move_player(int dy, int dx) {
@@ -306,10 +308,10 @@ public:
             // probability of moving right, up, left, down
             double probs[4] = {1., 1., 1., 1.};
 
-            if (level.get_sym(y, x + 1) == Wall) { probs[0] = 0; }
-            if (level.get_sym(y - 1, x) == Wall) { probs[1] = 0; }
-            if (level.get_sym(y, x - 1) == Wall) { probs[2] = 0; }
-            if (level.get_sym(y + 1, x) == Wall) { probs[3] = 0; }
+            if (level.get_sym(y, x + 1) == Wall || level.get_sym(y, x + 1) == Ghost) { probs[0] = 0; }
+            if (level.get_sym(y - 1, x) == Wall || level.get_sym(y - 1, x) == Ghost) { probs[1] = 0; }
+            if (level.get_sym(y, x - 1) == Wall || level.get_sym(y, x - 1) == Ghost) { probs[2] = 0; }
+            if (level.get_sym(y + 1, x) == Wall || level.get_sym(y + 1, x) == Ghost) { probs[3] = 0; }
 
             if (x < player.get_x() && probs[0] != 0) { probs[0] += hard_level; }
             if (y > player.get_y() && probs[1] != 0) { probs[1] += hard_level; }
@@ -324,7 +326,8 @@ public:
                 probs[j] /= counter;
             }
 
-            srand(time(NULL));
+	    std::srand(std::time(nullptr));
+	    
             double random_num = (double) rand() / RAND_MAX;
 
             int pos;
@@ -377,6 +380,7 @@ int main() {
     Game game(win_height, win_width, 0);
     char ch;
     int dx, dy;
+    int counter = 0;
     while (true) {
         ch = getch();
 
@@ -397,14 +401,16 @@ int main() {
         else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') {
             dx = 1;
         }
-        game.move_all(dy, dx, 0);
+	counter++;
+        game.move_all(dy, dx, 0, counter);
+	counter %= 21;
         game.draw(2 * dy + dx);
         game.display_status();
         if (game.check_end()) {
             ExitProgram("You've won!!!", 0);
             break;
         }
-        usleep(200000);
+        usleep(10000);
     }
     ExitProgram("Bye-bye", 0);
     return 0;
