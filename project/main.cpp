@@ -6,6 +6,8 @@
 #include <fstream>
 #include <vector>
 #include <time.h>
+#include <sys/timeb.h>
+
 
 
 void InitCurses();                                  //Start up ncurses
@@ -165,6 +167,11 @@ public:
                     chr = '&';
                     attr = A_NORMAL;
                     wattron(win, COLOR_PAIR(Pellet)); // TEMPORARY
+                }
+                else {
+                    chr = ' ';
+                    attr = A_NORMAL;
+                    wattron(win, COLOR_PAIR(Pellet));
                 }/*
                 else if (tmp == 4) {
                     chr = ' ';
@@ -327,7 +334,7 @@ public:
             }
 
 	    std::srand(std::time(nullptr));
-	    
+
             double random_num = (double) rand() / RAND_MAX;
 
             int pos;
@@ -401,16 +408,24 @@ int main() {
         else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') {
             dx = 1;
         }
-	counter++;
-        game.move_all(dy, dx, 0, counter);
-	counter %= 21;
+        counter++;
+        game.move_all(dy, dx, 2, counter);
+        counter %= 2001;
         game.draw(2 * dy + dx);
         game.display_status();
         if (game.check_end()) {
             ExitProgram("You've won!!!", 0);
             break;
         }
-        usleep(10000);
+        /*struct timeb t_start, t_current;
+        ftime(&t_start);
+        //Slow down the game a little bit
+        while (abs(t_start.millitm - t_current.millitm) < 100) {
+            getch();
+            ftime(&t_current);
+        }*/
+
+        usleep(10);
     }
     ExitProgram("Bye-bye", 0);
     return 0;
