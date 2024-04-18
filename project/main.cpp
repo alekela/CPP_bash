@@ -24,15 +24,15 @@ enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3, Ghost = 4};
 class Player {
 private:
     int pos_x, pos_y;
-    char chrbuf = '>';
 
 public:
+    char chrbuf = '>';
     int score;
     size_t lifes;
 
     Player() {
 	    score = 0;
-	    lifes = 3;
+	    lifes = 10;
     }
 
     int get_x() {
@@ -130,7 +130,7 @@ public:
         return field[y][x];
     }
 
-    void drawLevel(int player_dir) {
+    void drawLevel() {
         char chr;
         int attr;
 
@@ -153,40 +153,10 @@ public:
                     attr = A_NORMAL;
                     wattron(win, COLOR_PAIR(Pellet));
                 }
-                else if (tmp == Pacman) {
-                    if (player_dir == 0) {chr = chrbuf;}
-                    if (player_dir == -2) {chr = '^';}
-                    if (player_dir == -1) {chr = '<';}
-                    if (player_dir == 1) {chr = '>';}
-                    if (player_dir == 2) {chr = 'v';}
-                    chrbuf = chr;
-                    attr = A_NORMAL;
-                    wattron(win, COLOR_PAIR(Pacman));
-                }
-                else if (tmp == Ghost) {
-                    chr = '&';
-                    attr = A_NORMAL;
-                    wattron(win, COLOR_PAIR(Pellet)); // TEMPORARY
-                }
-                else {
-                    chr = ' ';
-                    attr = A_NORMAL;
-                    wattron(win, COLOR_PAIR(Pellet));
-                }/*
-                else if (tmp == 4) {
-                    chr = ' ';
-                    attr = A_NORMAL;
-                    wattron(win, COLOR_PAIR(GhostWall));
-                }*/
                 mvwaddch(win, i, j, chr | attr);
 
             }
         }
-
-        //Display ghosts
-
-        //OR display vulnerable ghosts
-        wrefresh(win);
     }
 
 };
@@ -194,11 +164,13 @@ public:
 
 class Monster {
 private:
-    int color = COLOR_WHITE;
     int pos_x, pos_y;
 
 public:
     int cell_under_ghost = Empty;
+    int color;
+    int start_y, start_x;
+
     Monster() {}
 
     int get_x() {
@@ -213,6 +185,11 @@ public:
         pos_y = y;
         pos_x = x;
     }
+
+    void draw_monster() {
+        wattron(win, COLOR_PAIR(color));
+        mvwaddch(win, pos_y, pos_x, '&');
+    }
 };
 
 
@@ -222,6 +199,7 @@ private:
 	Level level;
 	int max_score = 0;
 	int enemy_num;
+	int start_x, start_y;
 
 	std::vector<Monster*> ghosts;
 
@@ -232,6 +210,8 @@ public:
             for (int j = 0; j < level.get_width(); j++) {
                 if (level.get_sym(i, j) == Pacman) {
                     player.set_pos(i, j);
+                    start_y = i;
+                    start_x = j;
                 }
                 if (level.get_sym(i, j) == Pellet) {
                     max_score++;
@@ -239,12 +219,17 @@ public:
                 if (level.get_sym(i, j) == Ghost) {
                     Monster* tmp;
                     tmp = new Monster;
-                    (*tmp).set_pos(i, j);
+                    tmp->set_pos(i, j);
+                    tmp->start_x = j;
+                    tmp->start_y = i;
                     ghosts.push_back(tmp);
                 }
             }
         }
         enemy_num = ghosts.size();
+        for (int i = 0; i < enemy_num; i++) {
+            ghosts[i]->color = 10 + i % 5;
+        }
     }
 
     ~Game() {
@@ -255,9 +240,11 @@ public:
 
     void move_all(int dy, int dx, int hard_level, int counter) {
         move_player(dy, dx);
-	if (counter == 20) {
-        	move_ghosts(hard_level);
-	}
+        check_collisions();
+        if (counter == 0) {
+            move_ghosts(hard_level);
+        }
+        check_collisions();
     }
 
 	void move_player(int dy, int dx) {
@@ -332,8 +319,7 @@ public:
             for (int j = 0; j < 4; j++) {
                 probs[j] /= counter;
             }
-
-	    std::srand(std::time(nullptr));
+            std::srand(std::time(nullptr));
 
             double random_num = (double) rand() / RAND_MAX;
 
@@ -356,8 +342,12 @@ public:
 	}
 
 	void draw(int player_dir) {
-        level.drawLevel(player_dir);
-        //player.draw_player(player_dir)
+        level.drawLevel();
+        player.draw_player(player_dir);
+        for (int i = 0; i < enemy_num; i++) {
+            ghosts[i]->draw_monster();
+        }
+        wrefresh(win);
 	}
 
     void display_status() {
@@ -371,8 +361,32 @@ public:
         wrefresh(status);
     }
 
-	bool check_end() {
-        return (player.score >= max_score);
+
+    void check_collisions() {
+        for (int i = 0; i < enemy_num; i++) {
+            if (ghosts[i]->get_x() == player.get_x() && ghosts[i]->get_y() == player.get_y()) {
+                level.set_sym(player.get_y(), player.get_x(), Empty);
+                player.lifes--;
+                player.set_pos(start_y, start_x);
+                player.chrbuf = '>';
+                for (int i = 0; i < enemy_num; i++) {
+                    level.set_sym(ghosts[i]->start_y, ghosts[i]->start_x, ghosts[i]->cell_under_ghost);
+                    ghosts[i]->set_pos(ghosts[i]->start_y, ghosts[i]->start_x);
+                    ghosts[i]->cell_under_ghost = Empty;
+                }
+                break;
+            }
+        }
+    }
+
+	int check_end() {
+        if (player.score >= max_score) {
+            return 1;
+        }
+        if (player.lifes <= 0) {
+            return 2;
+        }
+        return 0;
 	}
 
 };
@@ -387,7 +401,7 @@ int main() {
     Game game(win_height, win_width, 0);
     char ch;
     int dx, dy;
-    int counter = 0;
+    int counter = 0; // for slowing down monsters
     while (true) {
         ch = getch();
 
@@ -408,15 +422,21 @@ int main() {
         else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') {
             dx = 1;
         }
-        counter++;
+
         game.move_all(dy, dx, 2, counter);
+        counter++;
         counter %= 2001;
         game.draw(2 * dy + dx);
         game.display_status();
-        if (game.check_end()) {
+        if (game.check_end() == 1) {
             ExitProgram("You've won!!!", 0);
             break;
         }
+        if (game.check_end() == 2) {
+            ExitProgram("You've lose!!!", 0);
+            break;
+        }
+
         /*struct timeb t_start, t_current;
         ftime(&t_start);
         //Slow down the game a little bit
@@ -448,13 +468,16 @@ void InitCurses() {
     init_pair(Wall,      COLOR_WHITE,   COLOR_WHITE);
     init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
     init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
- /*init_pair(PowerUp,   COLOR_BLUE,    COLOR_BLACK);
- init_pair(GhostWall, COLOR_WHITE,   COLOR_CYAN);
- init_pair(Ghost1,    COLOR_RED,     COLOR_BLACK);
- init_pair(Ghost2,    COLOR_CYAN,    COLOR_BLACK);
- init_pair(Ghost3,    COLOR_MAGENTA, COLOR_BLACK);
- init_pair(Ghost4,    COLOR_YELLOW,  COLOR_BLACK);
- init_pair(BlueGhost, COLOR_BLUE,    COLOR_RED);*/
+
+    init_pair(10,    COLOR_RED,     COLOR_BLACK);
+    init_pair(11,    COLOR_CYAN,    COLOR_BLACK);
+    init_pair(12,    COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(13,    COLOR_YELLOW,  COLOR_BLACK);
+    init_pair(14,    COLOR_GREEN,  COLOR_BLACK);
+
+    //init_pair(PowerUp,   COLOR_BLUE,    COLOR_BLACK);
+    //init_pair(GhostWall, COLOR_WHITE,   COLOR_CYAN);
+
 }
 
 void CreateWindows(int y, int x, int y0, int x0) {
