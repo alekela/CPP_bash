@@ -9,4 +9,4 @@ need to be done:
 6) add menu
 7) add settings
 8) add bullets and shooting mechanism
-9) fix bugs)
+9) fix bugs and add more levels)
