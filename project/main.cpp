@@ -7,6 +7,7 @@
 #include <vector>
 #include <time.h>
 #include <sys/timeb.h>
+#include <string>
 
 
 
@@ -72,12 +73,12 @@ private:
 public:
     std::vector<std::vector<int>> field;
 
-    Level(const int _height, const int _width) : width(_width), height(_height) {
-        set_level("level1.txt");
+    Level(const int _height, const int _width, std::string filename) : width(_width), height(_height) {
+        set_level(filename);
     }
 
-    Level() : width(28), height(29) {
-        set_level("level1.txt");
+    Level(std::string filename) : width(28), height(29) {
+        set_level(filename);
     }
 
     int get_height() {
@@ -206,7 +207,7 @@ private:
 
 public:
 
-    Game(int height, int width) : level(height, width) {
+    Game(int height, int width, std::string filename) : level(height, width, filename) {
         for (int i = 0; i < level.get_height(); i++) {
             for (int j = 0; j < level.get_width(); j++) {
                 if (level.get_sym(i, j) == Pacman) {
@@ -402,8 +403,10 @@ int main() {
     int win_width, win_height;
     win_height = 29;
     win_width = 28;
+    std::string filename;
+    filename = "level2.txt";
     CreateWindows(win_height, win_width, 1, 1);
-    Game game(win_height, win_width);
+    Game game(win_height, win_width, filename);
     char ch;
     int dx, dy;
     int counter = 0; // for slowing down monsters
