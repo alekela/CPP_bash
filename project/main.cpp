@@ -29,6 +29,7 @@ public:
     char chrbuf = '>';
     int score;
     size_t lifes;
+    int start_y, start_x;
 
     Player() {
 	    score = 0;
@@ -67,7 +68,6 @@ public:
 class Level {
 private:
     const int width, height;
-    char chrbuf = '>';
 
 public:
     std::vector<std::vector<int>> field;
@@ -201,7 +201,6 @@ private:
 	Level level;
 	int max_score = 0;
 	int enemy_num;
-	int start_x, start_y;
 
 	std::vector<Monster*> ghosts;
 
@@ -212,8 +211,8 @@ public:
             for (int j = 0; j < level.get_width(); j++) {
                 if (level.get_sym(i, j) == Pacman) {
                     player.set_pos(i, j);
-                    start_y = i;
-                    start_x = j;
+                    player.start_y = i;
+                    player.start_x = j;
                 }
                 if (level.get_sym(i, j) == Pellet) {
                     max_score++;
@@ -268,15 +267,16 @@ public:
         if (ny >= level.get_height()) {
             ny = 0;
         }
-		if (level.get_sym(ny, nx) != Wall) {
-			if (level.get_sym(ny, nx) == Pellet) {
-				player.score++;
-			}
-            player.set_pos(ny, nx);
-			level.set_sym(y, x, Empty);
-            level.set_sym(ny, nx, Pacman);
+
+	if (level.get_sym(ny, nx) != Wall) {
+		if (level.get_sym(ny, nx) == Pellet) {
+			player.score++;
 		}
+            player.set_pos(ny, nx);
+	    level.set_sym(y, x, Empty);
+            level.set_sym(ny, nx, Pacman);
 	}
+    }
 
     void move_monster(int y, int x, int ny, int nx, Monster* mon) {
         if (nx < 0) {
@@ -296,12 +296,13 @@ public:
         level.set_sym(y, x, mon->cell_under_ghost);
         mon->cell_under_ghost = level.get_sym(ny, nx);
         level.set_sym(ny, nx, Ghost);
-	}
+    }
 
     void move_ghosts(int hard_level) {
         for (int i = 0; i < enemy_num; i++) {
             int y = ghosts[i]->get_y();
             int x = ghosts[i]->get_x();
+
             // probability of moving right, up, left, down
             double probs[4] = {1., 1., 1., 1.};
 
@@ -336,10 +337,10 @@ public:
                 }
             }
 
-            if (pos == 0) {move_monster(y, x, y, x + 1, ghosts[i]);}
-            if (pos == 1) {move_monster(y, x, y - 1, x, ghosts[i]);}
-            if (pos == 2) {move_monster(y, x, y, x - 1, ghosts[i]);}
-            if (pos == 3) {move_monster(y, x, y + 1, x, ghosts[i]);}
+            if (pos == 0 && level.get_sym(y, x + 1) != Wall) {move_monster(y, x, y, x + 1, ghosts[i]);}
+            if (pos == 1 && level.get_sym(y - 1, x) != Wall) {move_monster(y, x, y - 1, x, ghosts[i]);}
+            if (pos == 2 && level.get_sym(y, x - 1) != Wall) {move_monster(y, x, y, x - 1, ghosts[i]);}
+            if (pos == 3 && level.get_sym(y + 1, x) != Wall) {move_monster(y, x, y + 1, x, ghosts[i]);}
 
         }
 	}
@@ -368,21 +369,15 @@ public:
     int check_collisions() {
         for (int i = 0; i < enemy_num; i++) {
             if (ghosts[i]->get_x() == player.get_x() && ghosts[i]->get_y() == player.get_y()) {
-                level.set_sym(player.get_y(), player.get_x(), Empty);
-                player.lifes--;
-                player.set_pos(start_y, start_x);
-                player.chrbuf = '>';
                 for (int i = 0; i < enemy_num; i++) {
-		    int tmp = ghosts[i]->cell_under_ghost;
-		    if (tmp == '>' || tmp == '<' || tmp == '^' || tmp == 'v') {
-                    	level.set_sym(ghosts[i]->get_y(), ghosts[i]->get_x(), Empty);
-		    }
-		    else {
-                    	level.set_sym(ghosts[i]->get_y(), ghosts[i]->get_x(), ghosts[i]->cell_under_ghost);
-		    }
+		    level.set_sym(ghosts[i]->get_y(), ghosts[i]->get_x(), ghosts[i]->cell_under_ghost);
                     ghosts[i]->set_pos(ghosts[i]->start_y, ghosts[i]->start_x);
                     ghosts[i]->cell_under_ghost = Empty;
                 }
+	        level.set_sym(player.get_y(), player.get_x(), Empty);
+                player.lifes--;
+                player.set_pos(player.start_y, player.start_x);
+                player.chrbuf = '>';	
                 return 1;
             }
         }
