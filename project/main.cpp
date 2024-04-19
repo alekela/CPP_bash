@@ -58,6 +58,7 @@ public:
         chrbuf = chr;
         wattron(win, COLOR_PAIR(Pacman));
         mvwaddch(win, pos_y, pos_x, chr);
+        wattroff(win, COLOR_PAIR(Pacman));
     }
 
 };
@@ -189,6 +190,7 @@ public:
     void draw_monster() {
         wattron(win, COLOR_PAIR(color));
         mvwaddch(win, pos_y, pos_x, '&');
+        wattroff(win, COLOR_PAIR(color));
     }
 };
 
@@ -205,7 +207,7 @@ private:
 
 public:
 
-    Game(int height, int width, int number_of_enemies) : level(height, width) {
+    Game(int height, int width) : level(height, width) {
         for (int i = 0; i < level.get_height(); i++) {
             for (int j = 0; j < level.get_width(); j++) {
                 if (level.get_sym(i, j) == Pacman) {
@@ -240,14 +242,15 @@ public:
 
     void move_all(int dy, int dx, int hard_level, int counter) {
         move_player(dy, dx);
-        check_collisions();
-        if (counter == 0) {
-            move_ghosts(hard_level);
-        }
-        check_collisions();
+	if (check_collisions() == 0) {
+        	if (counter == 0) {
+            		move_ghosts(hard_level);
+        	}
+        	check_collisions();
+	}
     }
 
-	void move_player(int dy, int dx) {
+    void move_player(int dy, int dx) {
         int x = player.get_x();
         int y = player.get_y();
 		int ny = y + dy;
@@ -275,7 +278,7 @@ public:
 		}
 	}
 
-	void move_monster(int y, int x, int ny, int nx, Monster* mon) {
+    void move_monster(int y, int x, int ny, int nx, Monster* mon) {
         if (nx < 0) {
             nx = level.get_width() - 1;
         }
@@ -295,7 +298,7 @@ public:
         level.set_sym(ny, nx, Ghost);
 	}
 
-	void move_ghosts(int hard_level) {
+    void move_ghosts(int hard_level) {
         for (int i = 0; i < enemy_num; i++) {
             int y = ghosts[i]->get_y();
             int x = ghosts[i]->get_x();
@@ -341,7 +344,7 @@ public:
         }
 	}
 
-	void draw(int player_dir) {
+    void draw(int player_dir) {
         level.drawLevel();
         player.draw_player(player_dir);
         for (int i = 0; i < enemy_num; i++) {
@@ -362,7 +365,7 @@ public:
     }
 
 
-    void check_collisions() {
+    int check_collisions() {
         for (int i = 0; i < enemy_num; i++) {
             if (ghosts[i]->get_x() == player.get_x() && ghosts[i]->get_y() == player.get_y()) {
                 level.set_sym(player.get_y(), player.get_x(), Empty);
@@ -370,13 +373,20 @@ public:
                 player.set_pos(start_y, start_x);
                 player.chrbuf = '>';
                 for (int i = 0; i < enemy_num; i++) {
-                    level.set_sym(ghosts[i]->start_y, ghosts[i]->start_x, ghosts[i]->cell_under_ghost);
+		    int tmp = ghosts[i]->cell_under_ghost;
+		    if (tmp == '>' || tmp == '<' || tmp == '^' || tmp == 'v') {
+                    	level.set_sym(ghosts[i]->get_y(), ghosts[i]->get_x(), Empty);
+		    }
+		    else {
+                    	level.set_sym(ghosts[i]->get_y(), ghosts[i]->get_x(), ghosts[i]->cell_under_ghost);
+		    }
                     ghosts[i]->set_pos(ghosts[i]->start_y, ghosts[i]->start_x);
                     ghosts[i]->cell_under_ghost = Empty;
                 }
-                break;
+                return 1;
             }
         }
+	return 0;
     }
 
 	int check_end() {
@@ -398,7 +408,7 @@ int main() {
     win_height = 29;
     win_width = 28;
     CreateWindows(win_height, win_width, 1, 1);
-    Game game(win_height, win_width, 0);
+    Game game(win_height, win_width);
     char ch;
     int dx, dy;
     int counter = 0; // for slowing down monsters
