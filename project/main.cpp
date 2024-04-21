@@ -29,7 +29,7 @@ public:
 
     Player() {
 	    score = 0;
-	    lifes = 5;
+	    lifes = 3;
     }
 
     int get_x() {
@@ -363,6 +363,29 @@ public:
         wrefresh(win);
 	}
 
+	void draw_winner() {
+        wattron(win, COLOR_PAIR(Pacman));
+        mvwprintw(win, 12, 7, "***************");
+        mvwprintw(win, 13, 7, "*You've won!!!*");
+        mvwprintw(win, 14, 7, "*back to menu *");
+        mvwprintw(win, 15, 7, "* after 5 sec *");
+        mvwprintw(win, 16, 7, "***************");
+        wrefresh(win);
+        usleep(5000000);
+
+	}
+
+    void draw_loser() {
+        wattron(win, COLOR_PAIR(Pacman));
+        mvwprintw(win, 12, 7, "***************");
+        mvwprintw(win, 13, 7, "*You've lose..*");
+        mvwprintw(win, 14, 7, "*back to menu *");
+        mvwprintw(win, 15, 7, "* after 5 sec *");
+        mvwprintw(win, 16, 7, "***************");
+        wrefresh(win);
+        usleep(5000000);
+    }
+
     void display_status() {
         wmove(status, 1, 1);
         wattron(status, COLOR_PAIR(Pacman));
@@ -409,7 +432,7 @@ public:
         return 0;
 	}
 
-    void main_loop() {
+    void main_loop(int hard_level) {
         char ch;
         int dx, dy;
         bool pause = false;
@@ -440,17 +463,17 @@ public:
                     dx = 1;
                 }
 
-                move_all(dy, dx, 2, counter);
+                move_all(dy, dx, hard_level, counter);
                 counter++;
                 counter %= 2001;
                 draw(2 * dy + dx);
                 display_status();
                 if (check_end() == 1) {
-                    ExitProgram("You've won!!!", 0);
+                    draw_winner();
                     break;
                 }
                 if (check_end() == 2) {
-                    ExitProgram("You've lose!!!", 0);
+                    draw_loser();
                     break;
                 }
 
@@ -476,42 +499,82 @@ public:
 class Menu {
 private:
     WINDOW *menuwin;
+    int _height, _width;
 
 public:
-    std::string choices[4] = {"Play", "Records", "Settings", "Exit"};
-    int highlight = 0;
+    std::vector<std::string> choices = {"Play", "Records", "Settings", "Exit"};
+    std::vector<std::string> settings_choices = {"Difficulty:", "Level:", "back"};
+    std::vector<std::string> difficult = {"Easy", "Medium", "Hard"};
 
     Menu(int height, int width) {
+        _height = height;
+        _width = width;
         menuwin = newwin(height, width, 1, 1);
+
         box(menuwin, 0, 0);
         keypad(menuwin, true);
+
     }
 
-    void draw() {
-        for (int i = 0; i < 4; i++) {
-            if (i == highlight) {
-                wattron(menuwin, A_REVERSE);
+    void clean(){
+        for (int i = 1; i < _height-1; i++) {
+            for (int j = 1; j < _width - 1; j++) {
+                mvwprintw(menuwin, i, j, " ");
             }
-            mvwprintw(menuwin, i+1, 1, choices[i].c_str());
-            wattroff(menuwin, A_REVERSE);
         }
-        wrefresh(menuwin);
+        box(menuwin, 0, 0);
     }
 
     void main_loop() {
-        char ch;
+        int ch;
+        int hard_level = 0;
+        int num_of_level = 1;
         while(true) {
-            draw();
-            ch = wgetch(menuwin);
+            ch = menu_loop();
+            if (ch == 0) {
+                std::string filename = "level";
+                filename += std::to_string(num_of_level);
+                filename += ".txt";
+                Game game(_height - 3, _width, filename);
+                game.main_loop(hard_level);
+                clean();
+            }
+            else if (ch == 1) {
+                clean();
+                record_loop();
+                clean();
+            }
+            else if (ch == 2) {
+                clean();
+                setting_loop(&hard_level, &num_of_level);
+                clean();
+                mvwprintw(menuwin, 7, 3, "%s difficulty", difficult[hard_level].c_str());
+                mvwprintw(menuwin, 8, 3, "Level number %d", num_of_level);
 
-            if (ch == 'q') {
+            }
+            else if (ch == 3) {
                 ExitProgram("Bye-bye", 0);
             }
-/*
-                if (highlight == 3) {
-                    ExitProgram("Bye-bye", 0);
+        }
+    }
+
+    int menu_loop() {
+        char ch;
+        int highlight = 0;
+        while(true) {
+            for (int i = 0; i < choices.size(); i++) {
+                if (i == highlight) {
+                    wattron(menuwin, A_REVERSE);
                 }
-            */
+                mvwprintw(menuwin, i+1, 1, choices[i].c_str());
+                wattroff(menuwin, A_REVERSE);
+            }
+            wrefresh(menuwin);
+            ch = wgetch(menuwin);
+
+            if (ch == ' ') {
+                return highlight;
+            }
             if (ch == KEY_UP || ch == 'W' || ch == 'w') {
                 highlight--;
             }
@@ -520,7 +583,54 @@ public:
             }
             if (highlight < 0) {highlight += 4;}
             else if (highlight > 3) {highlight -= 4;}
+        }
+    }
 
+    void record_loop(){}
+
+    void setting_loop(int* hard_level, int* num_level){
+        int hard = 0;
+        int num_of_level = 1;
+        char ch;
+        int highlight = 0;
+        while(true) {
+            for (int i = 0; i < settings_choices.size(); i++) {
+                if (i == highlight) {
+                    wattron(menuwin, A_REVERSE);
+                }
+                mvwprintw(menuwin, i+1, 1, settings_choices[i].c_str());
+                wattroff(menuwin, A_REVERSE);
+            }
+            mvwprintw(menuwin, 1, 15, "       ");
+            mvwprintw(menuwin, 1, 15, difficult[hard].c_str());
+            mvwprintw(menuwin, 2, 15, "       ");
+            mvwprintw(menuwin, 2, 15, "%d", num_of_level);
+            wrefresh(menuwin);
+            ch = wgetch(menuwin);
+
+            if (ch == ' ') {
+                if (highlight == 0) {
+                    hard++;
+                    hard = hard % 3;
+                }
+                else if (highlight == 1) {
+                    num_of_level++;
+                    num_of_level = (num_of_level - 1) % 2 + 1;
+                }
+                else if (highlight == 2) {
+                    *(hard_level) = hard;
+                    *(num_level) = num_of_level;
+                    break;
+                }
+            }
+            if (ch == KEY_UP || ch == 'W' || ch == 'w') {
+                highlight--;
+            }
+            else if (ch == KEY_DOWN || ch == 'S' || ch == 's') {
+                highlight++;
+            }
+            if (highlight < 0) {highlight += settings_choices.size();}
+            else if (highlight > settings_choices.size() - 1) {highlight -= settings_choices.size();}
         }
     }
 };
@@ -535,14 +645,10 @@ int main() {
     }
 
     int win_width, win_height;
-    win_height = 29;
+    win_height = 32;
     win_width = 28;
-    std::string filename;
-    filename = "level1.txt";
-    Game game(win_height, win_width, filename);
     Menu menu(win_height, win_width);
     menu.main_loop();
-    //game.main_loop();
     ExitProgram("Bye-bye", 0);
     return 0;
 }
