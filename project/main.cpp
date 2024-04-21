@@ -475,15 +475,53 @@ public:
 
 class Menu {
 private:
-    WINDOW *menu;
+    WINDOW *menuwin;
 
 public:
+    std::string choices[4] = {"Play", "Records", "Settings", "Exit"};
+    int highlight = 0;
+
     Menu(int height, int width) {
-        menu = newwin(height, width, 1, 1);
+        menuwin = newwin(height, width, 1, 1);
+        box(menuwin, 0, 0);
+        keypad(menuwin, true);
     }
 
     void draw() {
-    	
+        for (int i = 0; i < 4; i++) {
+            if (i == highlight) {
+                wattron(menuwin, A_REVERSE);
+            }
+            mvwprintw(menuwin, i+1, 1, choices[i].c_str());
+            wattroff(menuwin, A_REVERSE);
+        }
+        wrefresh(menuwin);
+    }
+
+    void main_loop() {
+        char ch;
+        while(true) {
+            draw();
+            ch = wgetch(menuwin);
+
+            if (ch == 10) {
+                ExitProgram("Bye-bye", 0);
+            }
+/*
+                if (highlight == 3) {
+                    ExitProgram("Bye-bye", 0);
+                }
+            */
+            if (ch == KEY_UP || ch == 'W' || ch == 'w') {
+                highlight--;
+            }
+            else if (ch == KEY_DOWN || ch == 'S' || ch == 's') {
+                highlight++;
+            }
+            if (highlight < 0) {highlight += 4;}
+            else if (highlight > 3) {highlight -= 4;}
+
+        }
     }
 };
 
@@ -502,7 +540,9 @@ int main() {
     std::string filename;
     filename = "level1.txt";
     Game game(win_height, win_width, filename);
-    game.main_loop();
+    Menu menu(win_height, win_width);
+    menu.main_loop();
+    //game.main_loop();
     ExitProgram("Bye-bye", 0);
     return 0;
 }
