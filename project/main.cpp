@@ -504,7 +504,7 @@ public:
             draw();
             ch = wgetch(menuwin);
 
-            if (ch == 10) {
+            if (ch == 'q') {
                 ExitProgram("Bye-bye", 0);
             }
 /*
