@@ -6,7 +6,7 @@ need to be done:
 3) collecting pellets and counting score, ending level when score is full✅
 4) adding monsters, their movements and adding endgame✅
 5) remake drawing figures (put draw functions in figures classes)✅
-6) add menu
-7) add settings
+6) add settings✅
+7) add whole menu
 8) add bullets and shooting mechanism
-9) fix bugs and add more levels)
+9) more levels, new ideas)
