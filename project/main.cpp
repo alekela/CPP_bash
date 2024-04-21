@@ -399,7 +399,7 @@ public:
         return 0;
     }
 
-	int check_end() {
+    int check_end() {
         if (player.score >= max_score) {
             return 1;
         }
@@ -409,7 +409,7 @@ public:
         return 0;
 	}
 
-	void main_loop() {
+    void main_loop() {
         char ch;
         int dx, dy;
         bool pause = false;
@@ -468,7 +468,7 @@ public:
                 draw_pause();
             }
         }
-	}
+    }
 
 };
 
