@@ -164,7 +164,6 @@ private:
         int pos_x, pos_y;
 
 public:
-        int cell_under_ghost = Empty;
         int color;
         int start_y, start_x;
         int state; // 0 - dead, 1 - alive
@@ -199,7 +198,6 @@ private:
         int pos_x, pos_y;
 public:
         int state; // 0 - on map, 1 - in player arsenal, 2 - shooted, -1 - out of the game
-        int sym_under;
         int dx, dy;
 
         Bullet() {}
@@ -448,11 +446,11 @@ public:
         void draw(int player_dir) {
                 level.drawLevel(win);
                 player.draw_player(player_dir, win);
-                for (int i = 0; i < enemy_num; i++) {
-                        ghosts[i]->draw_monster(win);
-                }
                 for (int i = 0; i < ammo.size(); i++) {
                         ammo[i]->draw_bullet(win);
+                }
+                for (int i = 0; i < enemy_num; i++) {
+                        ghosts[i]->draw_monster(win);
                 }
                 wrefresh(win);
         }
@@ -538,7 +536,6 @@ public:
                                         ammo[p]->set_pos(y, x+1);
                                         ammo[p]->dx = 1;
                                         ammo[p]->dy = 0;
-                                        ammo[p]->sym_under = level.get_sym(y, x+1);
                                 }
                         }
                         else if (c == '^' ) {
@@ -549,7 +546,6 @@ public:
                                         ammo[p]->set_pos(y-1, x);
                                         ammo[p]->dx = 0;
                                         ammo[p]->dy = -1;
-                                        ammo[p]->sym_under = level.get_sym(y-1, x);
                                 }
                         }
                         else if (c == '<' ) {
@@ -560,7 +556,6 @@ public:
                                         ammo[p]->set_pos(y, x-1);
                                         ammo[p]->dx = -1;
                                         ammo[p]->dy = 0;
-                                        ammo[p]->sym_under = level.get_sym(y, x-1);
                                 }
                         }
                         else if (c == 'v') {
@@ -571,7 +566,6 @@ public:
                                         ammo[p]->set_pos(y+1, x);
                                         ammo[p]->dx = 0;
                                         ammo[p]->dy = 1;
-                                        ammo[p]->sym_under = level.get_sym(y+1, x);
                                 }
                         }
                 }
@@ -581,9 +575,7 @@ public:
                 for (int i = 0; i < enemy_num; i++) {
                         if (ghosts[i]->get_x() == player.get_x() && ghosts[i]->get_y() == player.get_y() && ghosts[i]->state != 0) {
                                 for (int i = 0; i < enemy_num; i++) {
-                                        level.set_sym(ghosts[i]->get_y(), ghosts[i]->get_x(), ghosts[i]->cell_under_ghost);
                                         ghosts[i]->set_pos(ghosts[i]->start_y, ghosts[i]->start_x);
-                                        ghosts[i]->cell_under_ghost = Empty;
                                 }
                                 level.set_sym(player.get_y(), player.get_x(), Empty);
                                 player.lifes--;
