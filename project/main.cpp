@@ -14,7 +14,7 @@
 void InitCurses();                                  //Start up ncurses
 void ExitProgram(const char *message, int ans);
 
-enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3, Ghost = 4};
+enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3, Ghost = 4, Shot = 5};
 
 
 class Player {
@@ -26,10 +26,12 @@ public:
         int score;
         size_t lifes;
         int start_y, start_x;
+        int arsenal;
 
         Player() {
             score = 0;
             lifes = 3;
+            arsenal = 0;
         }
 
         int get_x() {
@@ -165,6 +167,7 @@ public:
         int cell_under_ghost = Empty;
         int color;
         int start_y, start_x;
+        int state; // 0 - dead, 1 - alive
 
         Monster() {}
 
@@ -182,9 +185,44 @@ public:
         }
 
         void draw_monster(WINDOW *win) {
-                wattron(win, COLOR_PAIR(color));
-                mvwaddch(win, pos_y, pos_x, '&');
-                wattroff(win, COLOR_PAIR(color));
+                if (state != 0 ) {
+                        wattron(win, COLOR_PAIR(color));
+                        mvwaddch(win, pos_y, pos_x, '&');
+                        wattroff(win, COLOR_PAIR(color));
+                }
+        }
+};
+
+
+class Bullet {
+private:
+        int pos_x, pos_y;
+public:
+        int state; // 0 - on map, 1 - in player arsenal, 2 - shooted, -1 - out of the game
+        int sym_under;
+        int dx, dy;
+
+        Bullet() {}
+
+        int get_y() {
+                return pos_y;
+        }
+
+        int get_x() {
+                return pos_x;
+        }
+
+        void set_pos(int y, int x) {
+                pos_y = y;
+                pos_x = x;
+        }
+
+        void draw_bullet(WINDOW *win) {
+                if (state == 0 || state == 2) {
+                        wattron(win, COLOR_PAIR(Shot));
+                        mvwaddch(win, pos_y, pos_x, '*');
+                        wattroff(win, COLOR_PAIR(Shot));
+                }
         }
 };
 
@@ -196,6 +234,7 @@ private:
 	int max_score = 0;
 	int enemy_num;
 	std::vector<Monster*> ghosts;
+	std::vector<Bullet*> ammo;
 	int y_max, x_max;
 
 public:
@@ -210,6 +249,7 @@ public:
                                         player.set_pos(i, j);
                                         player.start_y = i;
                                         player.start_x = j;
+                                        level.set_sym(i, j, Empty);
                                 }
                                 if (level.get_sym(i, j) == Pellet) {
                                         max_score++;
@@ -220,7 +260,19 @@ public:
                                         tmp->set_pos(i, j);
                                         tmp->start_x = j;
                                         tmp->start_y = i;
+                                        tmp->state = 1;
                                         ghosts.push_back(tmp);
+                                        level.set_sym(i, j, Empty);
+                                }
+                                if (level.get_sym(i, j) == Shot) {
+                                        Bullet* tmp;
+                                        tmp = new Bullet;
+                                        tmp->state = 0;
+                                        tmp->set_pos(i, j);
+                                        tmp->dx = 0;
+                                        tmp->dy = 0;
+                                        ammo.push_back(tmp);
+                                        level.set_sym(i, j, Empty);
                                 }
                         }
                 }
@@ -240,7 +292,7 @@ public:
                 }
         }
 
-        void move_all(int dy, int dx, int hard_level, int counter) {
+        void move_all(int dy, int dx, int hard_level, int counter, int bullet_counter) {
                 move_player(dy, dx);
                 if (check_collisions() == 0) {
                         if (counter == 0) {
@@ -248,6 +300,21 @@ public:
                         }
                         check_collisions();
                 }
+                if (bullet_counter == 0) {
+                        move_bullets();
+                }
+        }
+
+
+        int check_bullet(int y, int x) {
+                for (int i = 0; i < ammo.size(); i++) {
+                        if (ammo[i]->state == 0) {
+                                if (ammo[i]->get_x() == x && ammo[i]->get_y() == y) {
+                                        return i;
+                                }
+                        }
+                }
+                return -1;
         }
 
         void move_player(int dy, int dx) {
@@ -273,9 +340,13 @@ public:
                         if (level.get_sym(ny, nx) == Pellet) {
                                 player.score++;
                         }
+                        int p = check_bullet(ny, nx);
+                        if (p != -1) {
+                                player.arsenal++;
+                                ammo[p]->state = 1;
+                        }
                         player.set_pos(ny, nx);
-                        level.set_sym(y, x, Empty);
-                        level.set_sym(ny, nx, Pacman);
+                        level.set_sym(ny, nx, Empty);
                 }
         }
 
@@ -293,55 +364,84 @@ public:
                         ny = 0;
                 }
 
-                mon->set_pos(ny, nx);
-                level.set_sym(y, x, mon->cell_under_ghost);
-                mon->cell_under_ghost = level.get_sym(ny, nx);
-                level.set_sym(ny, nx, Ghost);
+                if (mon->state != 0) {
+                        mon->set_pos(ny, nx);
+                }
+        }
+
+
+        int check_ghost(int y, int x) {
+                for (int i = 0; i < enemy_num; i++) {
+                        if (ghosts[i]->get_y() == y && ghosts[i]->get_x() == x) {
+                                return i;
+                        }
+                }
+                return -1;
         }
 
         void move_ghosts(int hard_level) {
                 for (int i = 0; i < enemy_num; i++) {
-                int y = ghosts[i]->get_y();
-                int x = ghosts[i]->get_x();
+                        int y = ghosts[i]->get_y();
+                        int x = ghosts[i]->get_x();
 
-                // probability of moving right, up, left, down
-                double probs[4] = {1., 1., 1., 1.};
+                        // probability of moving right, up, left, down
+                        double probs[4] = {1., 1., 1., 1.};
 
-                if (level.get_sym(y, x + 1) == Wall || level.get_sym(y, x + 1) == Ghost) { probs[0] = 0; }
-                if (level.get_sym(y - 1, x) == Wall || level.get_sym(y - 1, x) == Ghost) { probs[1] = 0; }
-                if (level.get_sym(y, x - 1) == Wall || level.get_sym(y, x - 1) == Ghost) { probs[2] = 0; }
-                if (level.get_sym(y + 1, x) == Wall || level.get_sym(y + 1, x) == Ghost) { probs[3] = 0; }
+                        if (level.get_sym(y, x + 1) == Wall || check_ghost(y, x + 1) != -1) { probs[0] = 0; }
+                        if (level.get_sym(y - 1, x) == Wall || check_ghost(y - 1, x) != -1) { probs[1] = 0; }
+                        if (level.get_sym(y, x - 1) == Wall || check_ghost(y, x - 1) != -1) { probs[2] = 0; }
+                        if (level.get_sym(y + 1, x) == Wall || check_ghost(y + 1, x) != -1) { probs[3] = 0; }
 
-                if (x < player.get_x() && probs[0] != 0) { probs[0] += hard_level; }
-                if (y > player.get_y() && probs[1] != 0) { probs[1] += hard_level; }
-                if (x > player.get_x() && probs[2] != 0) { probs[2] += hard_level; }
-                if (y < player.get_y() && probs[3] != 0) { probs[3] += hard_level; }
+                        if (x < player.get_x() && probs[0] != 0) { probs[0] += hard_level; }
+                        if (y > player.get_y() && probs[1] != 0) { probs[1] += hard_level; }
+                        if (x > player.get_x() && probs[2] != 0) { probs[2] += hard_level; }
+                        if (y < player.get_y() && probs[3] != 0) { probs[3] += hard_level; }
 
-                int counter = 0;
-                for (int j = 0; j < 4; j++) {
-                        counter += probs[j];
-                }
-                for (int j = 0; j < 4; j++) {
-                        probs[j] /= counter;
-                }
-                std::srand(std::time(nullptr));
-
-                double random_num = (double) rand() / RAND_MAX;
-
-                int pos;
-                double counter2 = 0;
-                for (int j = 0; j < 4; j++) {
-                        counter2 += probs[j];
-                        if (counter2 > random_num) {
-                                pos = j;
-                                break;
+                        int counter = 0;
+                        for (int j = 0; j < 4; j++) {
+                                counter += probs[j];
                         }
-                }
+                        for (int j = 0; j < 4; j++) {
+                                probs[j] /= counter;
+                        }
+                        std::srand(std::time(nullptr));
 
-                if (pos == 0 && level.get_sym(y, x + 1) != Wall) {move_monster(y, x, y, x + 1, ghosts[i]);}
-                if (pos == 1 && level.get_sym(y - 1, x) != Wall) {move_monster(y, x, y - 1, x, ghosts[i]);}
-                if (pos == 2 && level.get_sym(y, x - 1) != Wall) {move_monster(y, x, y, x - 1, ghosts[i]);}
-                if (pos == 3 && level.get_sym(y + 1, x) != Wall) {move_monster(y, x, y + 1, x, ghosts[i]);}
+                        double random_num = (double) rand() / RAND_MAX;
+
+                        int pos;
+                        double counter2 = 0;
+                        for (int j = 0; j < 4; j++) {
+                                counter2 += probs[j];
+                                if (counter2 > random_num) {
+                                        pos = j;
+                                        break;
+                                }
+                        }
+
+                        if (pos == 0 && level.get_sym(y, x + 1) != Wall) {move_monster(y, x, y, x + 1, ghosts[i]);}
+                        if (pos == 1 && level.get_sym(y - 1, x) != Wall) {move_monster(y, x, y - 1, x, ghosts[i]);}
+                        if (pos == 2 && level.get_sym(y, x - 1) != Wall) {move_monster(y, x, y, x - 1, ghosts[i]);}
+                        if (pos == 3 && level.get_sym(y + 1, x) != Wall) {move_monster(y, x, y + 1, x, ghosts[i]);}
+                }
+        }
+
+        void move_bullets() {
+                for (int i = 0; i < ammo.size(); i++) {
+                        if (ammo[i]->state == 2) {
+                                int ny = ammo[i]->get_y() + ammo[i]->dy;
+                                int nx = ammo[i]->get_x() + ammo[i]->dx;
+                                if (level.get_sym(ny, nx) == Wall) {
+                                        ammo[i]->state = -1;
+                                }
+                                int p = check_ghost(ny, nx);
+                                if (p != -1) {
+                                        ammo[i]->state = -1;
+                                        ghosts[p]->state = 0;
+                                }
+                                else {
+                                        ammo[i]->set_pos(ny, nx);
+                                }
+                        }
                 }
         }
 
@@ -350,6 +450,9 @@ public:
                 player.draw_player(player_dir, win);
                 for (int i = 0; i < enemy_num; i++) {
                         ghosts[i]->draw_monster(win);
+                }
+                for (int i = 0; i < ammo.size(); i++) {
+                        ammo[i]->draw_bullet(win);
                 }
                 wrefresh(win);
         }
@@ -398,13 +501,85 @@ public:
                 wprintw(status, "  ");
                 wattroff(status, COLOR_PAIR(Pacman));
                 wprintw(status, "Score: %d ", player.score);
+
+                wmove(status, 2, 1);
+                wprintw(status, "Ammo: ");
+                wattron(status, COLOR_PAIR(Shot));
+                for(int a = 0; a < 10; a++) {
+                        if (a < player.arsenal) {
+                                wprintw(status, "* ");
+                        }
+                        else {
+                                wprintw(status, "  ");
+                        }
+                }
                 wrefresh(status);
         }
 
+        void shoot() {
+                if (player.arsenal > 0) {
+                        player.arsenal--;
+                        int p = 0;
+                        for (int i = 0; i < ammo.size(); i++) {
+                                if (ammo[i]->state == 1) {
+                                        ammo[i]->state = 2;
+                                        p = i;
+                                        break;
+                                }
+                        }
+                        int x = player.get_x();
+                        int y = player.get_y();
+                        int c = player.chrbuf;
+                        if (c == '>' ) {
+                                if (level.get_sym(y, x+1) == Wall) {
+                                        ammo[p]->state = -1;
+                                }
+                                else {
+                                        ammo[p]->set_pos(y, x+1);
+                                        ammo[p]->dx = 1;
+                                        ammo[p]->dy = 0;
+                                        ammo[p]->sym_under = level.get_sym(y, x+1);
+                                }
+                        }
+                        else if (c == '^' ) {
+                                if (level.get_sym(y-1, x) == Wall) {
+                                        ammo[p]->state = -1;
+                                }
+                                else {
+                                        ammo[p]->set_pos(y-1, x);
+                                        ammo[p]->dx = 0;
+                                        ammo[p]->dy = -1;
+                                        ammo[p]->sym_under = level.get_sym(y-1, x);
+                                }
+                        }
+                        else if (c == '<' ) {
+                                if (level.get_sym(y, x-1) == Wall) {
+                                        ammo[p]->state = -1;
+                                }
+                                else {
+                                        ammo[p]->set_pos(y, x-1);
+                                        ammo[p]->dx = -1;
+                                        ammo[p]->dy = 0;
+                                        ammo[p]->sym_under = level.get_sym(y, x-1);
+                                }
+                        }
+                        else if (c == 'v') {
+                                if (level.get_sym(y+1, x) == Wall) {
+                                        ammo[p]->state = -1;
+                                }
+                                else {
+                                        ammo[p]->set_pos(y+1, x);
+                                        ammo[p]->dx = 0;
+                                        ammo[p]->dy = 1;
+                                        ammo[p]->sym_under = level.get_sym(y+1, x);
+                                }
+                        }
+                }
+        }
 
         int check_collisions() {
                 for (int i = 0; i < enemy_num; i++) {
-                        if (ghosts[i]->get_x() == player.get_x() && ghosts[i]->get_y() == player.get_y()) {
+                        if (ghosts[i]->get_x() == player.get_x() && ghosts[i]->get_y() == player.get_y() && ghosts[i]->state != 0) {
                                 for (int i = 0; i < enemy_num; i++) {
                                         level.set_sym(ghosts[i]->get_y(), ghosts[i]->get_x(), ghosts[i]->cell_under_ghost);
                                         ghosts[i]->set_pos(ghosts[i]->start_y, ghosts[i]->start_x);
@@ -435,6 +610,7 @@ public:
                 int dx, dy;
                 bool pause = false;
                 int counter = 0; // for slowing down monsters
+                int bullet_counter = 0; // for slowing down bullets
                 while (true) {
                         ch = getch();
                         if (ch == ' ') { pause = pause ? false : true; }
@@ -448,9 +624,13 @@ public:
                                 else if (ch == KEY_LEFT || ch == 'A' || ch == 'a') { dx = -1; }
                                 else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') { dx = 1; }
 
-                                move_all(dy, dx, hard_level, counter);
+                                else if (ch == 'F' || ch == 'f') { shoot();}
+
+                                move_all(dy, dx, hard_level, counter, bullet_counter);
                                 counter++;
                                 counter %= 2001;
+                                bullet_counter++;
+                                bullet_counter %= 201;
                                 draw(2 * dy + dx);
                                 display_status();
                                 if (check_end() == 1) {
@@ -551,7 +731,7 @@ public:
                                 if (i == highlight) {
                                         wattron(menuwin, A_REVERSE);
                                 }
-                                mvwprintw(menuwin, i+1, 1, choices[i].c_str());
+                                mvwprintw(menuwin, _height / 2 - 5 + 2*i +1, 1, choices[i].c_str());
                                 wattroff(menuwin, A_REVERSE);
                         }
                         wrefresh(menuwin);
@@ -571,7 +751,9 @@ public:
                 }
         }
 
-        void record_loop(){}
+        void record_loop(){
+
+        }
 
         void setting_loop(int* hard_level, int* num_level){
                 int hard = 0;
@@ -655,14 +837,13 @@ void InitCurses() {
         init_pair(Wall,      COLOR_WHITE,   COLOR_WHITE);
         init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
         init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
+        init_pair(Shot, COLOR_BLUE, COLOR_BLACK);
 
         init_pair(10,    COLOR_RED,     COLOR_BLACK);
         init_pair(11,    COLOR_CYAN,    COLOR_BLACK);
         init_pair(12,    COLOR_MAGENTA, COLOR_BLACK);
         init_pair(13,    COLOR_YELLOW,  COLOR_BLACK);
         init_pair(14,    COLOR_GREEN,  COLOR_BLACK);
-
-        //init_pair(PowerUp,   COLOR_BLUE,    COLOR_BLACK);
 }
 
 void ExitProgram(const char *message, int ans) {
