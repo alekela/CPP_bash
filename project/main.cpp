@@ -277,7 +277,7 @@ public:
                 }
                 enemy_num = ghosts.size();
                 for (int i = 0; i < enemy_num; i++) {
-                        ghosts[i]->color = 10 + i % 5;
+                        ghosts[i]->color = 10 + i % 4;
                 }
 
                 getmaxyx(stdscr, y_max, x_max);
@@ -828,13 +828,12 @@ void InitCurses() {
         init_pair(Wall,      COLOR_WHITE,   COLOR_WHITE);
         init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
         init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
-        init_pair(Shot, COLOR_BLUE, COLOR_BLACK);
+        init_pair(Shot, COLOR_YELLOW, COLOR_BLACK);
 
         init_pair(10,    COLOR_RED,     COLOR_BLACK);
         init_pair(11,    COLOR_CYAN,    COLOR_BLACK);
         init_pair(12,    COLOR_MAGENTA, COLOR_BLACK);
-        init_pair(13,    COLOR_YELLOW,  COLOR_BLACK);
-        init_pair(14,    COLOR_GREEN,  COLOR_BLACK);
+        init_pair(13,    COLOR_GREEN,  COLOR_BLACK);
 }
 
 void ExitProgram(const char *message, int ans) {
