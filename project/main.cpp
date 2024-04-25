@@ -35,11 +35,11 @@ public:
         }
 
         int get_x() {
-        	return pos_x;
+        return pos_x;
         }
 
         int get_y() {
-        	return pos_y;
+        return pos_y;
         }
 
         void set_pos(int y, int x) {
@@ -48,16 +48,16 @@ public:
         }
 
         void draw_player(int player_dir, WINDOW *win) {
-	        char chr;
-	        if (player_dir == 0) {chr = chrbuf;}
-	        if (player_dir == -2) {chr = '^';}
-	        if (player_dir == -1) {chr = '<';}
-	        if (player_dir == 1) {chr = '>';}
-	        if (player_dir == 2) {chr = 'v';}
-	        chrbuf = chr;
-	        wattron(win, COLOR_PAIR(Pacman));
-	        mvwaddch(win, pos_y, pos_x, chr);
-	        wattroff(win, COLOR_PAIR(Pacman));
+        char chr;
+        if (player_dir == 0) {chr = chrbuf;}
+        if (player_dir == -2) {chr = '^';}
+        if (player_dir == -1) {chr = '<';}
+        if (player_dir == 1) {chr = '>';}
+        if (player_dir == 2) {chr = 'v';}
+        chrbuf = chr;
+        wattron(win, COLOR_PAIR(Pacman));
+        mvwaddch(win, pos_y, pos_x, chr);
+        wattroff(win, COLOR_PAIR(Pacman));
         }
 
 };
@@ -196,6 +196,7 @@ public:
 class Bullet {
 private:
         int pos_x, pos_y;
+
 public:
         int state; // 0 - on map, 1 - in player arsenal, 2 - shooted, -1 - out of the game
         int dx, dy;
@@ -349,18 +350,10 @@ public:
         }
 
         void move_monster(int y, int x, int ny, int nx, Monster* mon) {
-                if (nx < 0) {
-                        nx = level.get_width() - 1;
-                }
-                if (ny < 0) {
-                        ny = level.get_height() - 1;
-                }
-                if (nx >= level.get_width()) {
-                        nx = 0;
-                }
-                if (ny >= level.get_height()) {
-                        ny = 0;
-                }
+                if (nx < 0) { nx = level.get_width() - 1; }
+                if (ny < 0) { ny = level.get_height() - 1; }
+                if (nx >= level.get_width()) { nx = 0; }
+                if (ny >= level.get_height()) { ny = 0; }
 
                 if (mon->state != 0) {
                         mon->set_pos(ny, nx);
@@ -428,6 +421,12 @@ public:
                         if (ammo[i]->state == 2) {
                                 int ny = ammo[i]->get_y() + ammo[i]->dy;
                                 int nx = ammo[i]->get_x() + ammo[i]->dx;
+
+                                if (nx < 0) { nx = level.get_width() - 1; }
+                                if (ny < 0) { ny = level.get_height() - 1; }
+                                if (nx >= level.get_width()) { nx = 0; }
+                                if (ny >= level.get_height()) { ny = 0; }
+
                                 if (level.get_sym(ny, nx) == Wall) {
                                         ammo[i]->state = -1;
                                 }
