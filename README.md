@@ -7,6 +7,7 @@ need to be done:
 4) adding monsters, their movements and adding endgame✅
 5) remake drawing figures (put draw functions in figures classes)✅
 6) add settings✅
-7) add statistic (records)
-8) add bullets and shooting mechanism
-9) more levels, new ideas)
+7) add bullets and shooting mechanism✅
+8) add statistic (records)
+9) add slowing down whole level and parts of it
+10) more levels, new ideas)
