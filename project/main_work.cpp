@@ -292,15 +292,16 @@ public:
 
         void move_all(int dy, int dx, int hard_level, int counter, int bullet_counter) {
                 move_player(dy, dx);
+                if (bullet_counter == 0) {
+                        move_bullets();
+                }
                 if (check_collisions() == 0) {
                         if (counter == 0) {
                                 move_ghosts(hard_level);
                         }
                         check_collisions();
                 }
-                if (bullet_counter == 0) {
-                        move_bullets();
-                }
+
         }
 
 
@@ -349,18 +350,10 @@ public:
         }
 
         void move_monster(int y, int x, int ny, int nx, Monster* mon) {
-                if (nx < 0) {
-                        nx = level.get_width() - 1;
-                }
-                if (ny < 0) {
-                        ny = level.get_height() - 1;
-                }
-                if (nx >= level.get_width()) {
-                        nx = 0;
-                }
-                if (ny >= level.get_height()) {
-                        ny = 0;
-                }
+                if (nx < 0) { nx = level.get_width() - 1; }
+                if (ny < 0) { ny = level.get_height() - 1; }
+                if (nx >= level.get_width()) { nx = 0; }
+                if (ny >= level.get_height()) { ny = 0; }
 
                 if (mon->state != 0) {
                         mon->set_pos(ny, nx);
@@ -428,6 +421,12 @@ public:
                         if (ammo[i]->state == 2) {
                                 int ny = ammo[i]->get_y() + ammo[i]->dy;
                                 int nx = ammo[i]->get_x() + ammo[i]->dx;
+
+                		if (nx < 0) { nx = level.get_width() - 1; }
+     	           		if (ny < 0) { ny = level.get_height() - 1; }
+        	        	if (nx >= level.get_width()) { nx = 0; }
+                		if (ny >= level.get_height()) { ny = 0; }
+
                                 if (level.get_sym(ny, nx) == Wall) {
                                         ammo[i]->state = -1;
                                 }
@@ -528,46 +527,39 @@ public:
                         int x = player.get_x();
                         int y = player.get_y();
                         int c = player.chrbuf;
-                        if (c == '>' ) {
-                                if (level.get_sym(y, x+1) == Wall) {
-                                        ammo[p]->state = -1;
-                                }
-                                else {
-                                        ammo[p]->set_pos(y, x+1);
-                                        ammo[p]->dx = 1;
-                                        ammo[p]->dy = 0;
-                                }
+			int nx, ny;
+                        if (c == '>') {
+				nx = x + 1;
+				ny = y;
                         }
-                        else if (c == '^' ) {
-                                if (level.get_sym(y-1, x) == Wall) {
-                                        ammo[p]->state = -1;
-                                }
-                                else {
-                                        ammo[p]->set_pos(y-1, x);
-                                        ammo[p]->dx = 0;
-                                        ammo[p]->dy = -1;
-                                }
+                        else if (c == '^') {
+				nx = x;
+				ny = y - 1;
                         }
-                        else if (c == '<' ) {
-                                if (level.get_sym(y, x-1) == Wall) {
-                                        ammo[p]->state = -1;
-                                }
-                                else {
-                                        ammo[p]->set_pos(y, x-1);
-                                        ammo[p]->dx = -1;
-                                        ammo[p]->dy = 0;
-                                }
+                        else if (c == '<') {
+                        	nx = x - 1;
+				ny = y;
+              
                         }
                         else if (c == 'v') {
-                                if (level.get_sym(y+1, x) == Wall) {
-                                        ammo[p]->state = -1;
-                                }
-                                else {
-                                        ammo[p]->set_pos(y+1, x);
-                                        ammo[p]->dx = 0;
-                                        ammo[p]->dy = 1;
-                                }
+				nx = x;
+				ny = y + 1;
                         }
+			
+			int q = check_ghost(ny, nx);
+			if (level.get_sym(ny, nx) == Wall) {
+                        	ammo[p]->state = -1;
+                        }
+			else if (q != -1) {
+				ghosts[q]->state = 0;
+				ammo[p]->state = -1;
+			}
+                        else {
+                        	ammo[p]->set_pos(ny, nx);
+                                ammo[p]->dx = nx - x;
+                                ammo[p]->dy = ny - y;
+                        }
+
                 }
         }
 
@@ -603,51 +595,57 @@ public:
                 bool pause = false;
                 int counter = 0; // for slowing down monsters
                 int bullet_counter = 0; // for slowing down bullets
+		int speed = 0;
                 while (true) {
-                        ch = getch();
-                        if (ch == ' ') { pause = pause ? false : true; }
-                        if (ch == 'Q' || ch == 'q') { break; }
+			if (speed == 0) {
+                        	ch = getch();
+                        	if (ch == ' ') { pause = pause ? false : true; }
+                        	if (ch == 'Q' || ch == 'q') { break; }
 
-                        if (!pause) {
-                                dx = 0;
-                                dy = 0;
-                                if (ch == KEY_UP || ch == 'W' || ch == 'w') { dy = -1; }
-                                else if (ch == KEY_DOWN || ch == 'S' || ch == 's') { dy = 1; }
-                                else if (ch == KEY_LEFT || ch == 'A' || ch == 'a') { dx = -1; }
-                                else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') { dx = 1; }
+                        	if (!pause) {
+                                	dx = 0;
+                                	dy = 0;
+                                	if (ch == KEY_UP || ch == 'W' || ch == 'w') { dy = -1; }
+                                	else if (ch == KEY_DOWN || ch == 'S' || ch == 's') { dy = 1; }
+                                	else if (ch == KEY_LEFT || ch == 'A' || ch == 'a') { dx = -1; }
+                                	else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') { dx = 1; }
 
-                                else if (ch == 'F' || ch == 'f') { shoot();}
+                                	else if (ch == 'F' || ch == 'f') { shoot();}
 
-                                move_all(dy, dx, hard_level, counter, bullet_counter);
-                                counter++;
-                                counter %= 2001;
-                                bullet_counter++;
-                                bullet_counter %= 201;
-                                draw(2 * dy + dx);
-                                display_status();
-                                if (check_end() == 1) {
-                                        draw_winner();
-                                        break;
-                                }
-                                if (check_end() == 2) {
-                                        draw_loser();
-                                        break;
-                                }
+                                	move_all(dy, dx, hard_level, counter, bullet_counter);
+                                	counter++;
+                                	counter %= 2001;
+                                	bullet_counter++;
+                                	bullet_counter %= 201;
+                                	draw(2 * dy + dx);
+                                	display_status();
+                                	if (check_end() == 1) {
+                                	        draw_winner();
+                                	        break;
+                                	}
+                                	if (check_end() == 2) {
+                                	        draw_loser();
+                                	        break;
+                                	}
 
-                                /*struct timeb t_start, t_current;
-                                ftime(&t_start);
-                                //Slow down the game a little bit
-                                while (abs(t_start.millitm - t_current.millitm) < 100) {
-                                    getch();
-                                    ftime(&t_current);
-                                }*/
+                                	/*struct timeb t_start, t_current;
+                                	ftime(&t_start);
+                                	//Slow down the game a little bit
+                                	while (abs(t_start.millitm - t_current.millitm) < 100) {
+                                	    getch();
+                                	    ftime(&t_current);
+                                	}*/
 
-                                usleep(10);
-                        }
-                        else {
-                                draw_pause();
-                        }
-                }
+                                	usleep(10);
+                        	}
+                        	else {
+                        	        draw_pause();
+                        	}
+                	}
+
+			speed++;
+			speed %= 100;
+		}
         }
 
 };
@@ -748,8 +746,8 @@ public:
         }
 
         void setting_loop(int* hard_level, int* num_level){
-                int hard = 0;
-                int num_of_level = 1;
+                int hard = *hard_level;
+                int num_of_level = *num_level;
                 char ch;
                 int highlight = 0;
                 while(true) {
