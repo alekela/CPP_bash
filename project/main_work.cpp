@@ -17,6 +17,22 @@ void ExitProgram(const char *message, int ans);
 enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3, Ghost = 4, Shot = 5};
 
 
+class my_error : public std::exception {
+private:
+        std::string _message;
+
+public:
+        my_error(const std::string& message, const std::string& filename) {
+                _message = message;
+                _message += " Error in file: ";
+                _message += filename;
+        }
+
+        const char* what() const noexcept override {
+                return _message.c_str();
+        }
+};
+
 class Player {
 private:
         int pos_x, pos_y;
@@ -90,16 +106,16 @@ public:
                 std::ifstream infile;
                 infile.open(filename);
                 if (!infile.is_open()) {
-                        ExitProgram("Can't open file", -1);
+                        throw my_error("Can't open file!", filename);
                 }
                 std::string tmp;
                 int counter = 0;
                 while (getline(infile, tmp)) {
                         if (counter >= height) {
-                                ExitProgram("Error in file: mismatch in number of lines", -1);
+                               throw my_error("Mismatch in number of lines!", filename);
                         }
                         if (tmp.size() != width) {
-                                ExitProgram("Error in file: mismatch in width", -1);
+                                throw my_error("Mismatch in width!", filename);
                         }
                         field.push_back({});
                         for (int i = 0; i < width; i++) {
@@ -539,13 +555,13 @@ public:
                         else if (c == '<') {
                         	nx = x - 1;
 				ny = y;
-              
+
                         }
                         else if (c == 'v') {
 				nx = x;
 				ny = y + 1;
                         }
-			
+
 			int q = check_ghost(ny, nx);
 			if (level.get_sym(ny, nx) == Wall) {
                         	ammo[p]->state = -1;
@@ -708,7 +724,7 @@ public:
                                 mvwprintw(menuwin, 8, 3, "Level number %d", num_of_level);
                         }
                         else if (ch == 3) {
-                                ExitProgram("Bye-bye", 0);
+                                break;
                         }
                 }
         }
@@ -805,8 +821,13 @@ int main() {
         win_height = 32;
         win_width = 28;
         Menu menu(win_height, win_width);
-        menu.main_loop();
-        ExitProgram("Bye-bye", 0);
+        try {
+                menu.main_loop();
+                ExitProgram("Bye-bye", 0);
+        }
+        catch (const my_error& err) {
+                ExitProgram(err.what(), -1);
+        }
         return 0;
 }
 
