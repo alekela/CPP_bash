@@ -1,7 +1,4 @@
-#include <curses.h>
-#include <iostream>
-
-enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3, Ghost = 4, Shot = 5};
+#include "global.cpp"
 
 class Player {
 private:

@@ -1,4 +1,4 @@
-#include <curses.h>
+#include "global.cpp"
 
 
 class Bullet {

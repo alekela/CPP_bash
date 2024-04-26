@@ -1,14 +1,4 @@
-#include <iostream>
-#include <curses.h>
-#include <string>
-#include <ctime>
-#include <unistd.h>
-#include <fstream>
-#include <vector>
-#include <time.h>
-#include <sys/timeb.h>
-#include <string>
-
+#include "global.cpp"
 #include "player.cpp"
 #include "level.cpp"
 #include "monster.cpp"

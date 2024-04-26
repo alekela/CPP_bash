@@ -1,6 +1,4 @@
-#include <fstream>
-#include <vector>
-#include <curses.h>
+#include "global.cpp"
 
 
 class Level {
