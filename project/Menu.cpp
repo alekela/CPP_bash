@@ -151,7 +151,10 @@ void Menu::record_loop(int hard_level, int num_of_level){
         while(true) {
                 mvwprintw(menuwin, 1, 1, "Level: %d\t%s", num_of_level, difficult[hard_level].c_str());
                 for (int i = 0; i < records.size(); i++) {
-                        mvwprintw(menuwin, i+3, 1, records[i].c_str());
+                        std::string s = records[i];
+                        mvwprintw(menuwin, i+3, 1, s.substr(0, s.find('\t')).c_str());
+                        s.erase(0, s.find('\t') + 1);
+                        mvwprintw(menuwin, i+3, 16, s.c_str());
                 }
                 wattron(menuwin, A_REVERSE);
                 mvwprintw(menuwin, records.size() + 4, 1, "back");
