@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
         mvwprintw(mainwin, 1, 1, "Hello! Enter your name: \n");
         nocbreak();
         echo();
+        wmove(mainwin, 2, 1);
         char ch = wgetch(mainwin);
         while (ch != '\n') {
                 name.push_back(ch);
