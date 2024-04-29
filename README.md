@@ -8,6 +8,6 @@ need to be done:
 5) remake drawing figures (put draw functions in figures classes)✅
 6) add settings✅
 7) add bullets and shooting mechanism✅
-8) add statistic (records)
+8) add statistic (records)✅
 9) remove ExitProgram by adding my class of Exception✅
 10) more levels, new ideas)
