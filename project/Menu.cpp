@@ -43,7 +43,6 @@ void Menu::main_loop(std::string name) {
                                         file.close();
                                         std::ofstream file2;
                                         file2.open(outfilename);
-                                        file2 << "alekela\t500";
                                         file2.close();
                                         file.open(outfilename);
                                 }
@@ -137,7 +136,6 @@ void Menu::record_loop(int hard_level, int num_of_level){
                 file.close();
                 std::ofstream file2;
                 file2.open(filename);
-                file2 << "alekela\t500";
                 file2.close();
                 file.open(filename);
         }
