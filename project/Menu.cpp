@@ -69,8 +69,10 @@ void Menu::main_loop(std::string name) {
                                 }
                                 std::ofstream file3;
                                 file3.open(outfilename);
-                                for (int i = 0; i < names.size(); i++) {
-                                        file3 << names[i] << "\t" << std::to_string(scores[i]) << std::endl;
+                                for (int i = 0; i < 5; i++) {
+                                        if (i < names.size()) {
+                                                file3 << names[i] << "\t" << std::to_string(scores[i]) << std::endl;
+                                        }
                                 }
                                 file3.close();
                         }
@@ -147,11 +149,12 @@ void Menu::record_loop(int hard_level, int num_of_level){
         file.close();
         char ch;
         while(true) {
+                mvwprintw(menuwin, 1, 1, "Level: %d\t%s", num_of_level, difficult[hard_level].c_str());
                 for (int i = 0; i < records.size(); i++) {
-                        mvwprintw(menuwin, i+1, 1, records[i].c_str());
+                        mvwprintw(menuwin, i+3, 1, records[i].c_str());
                 }
                 wattron(menuwin, A_REVERSE);
-                mvwprintw(menuwin, records.size() + 2, 1, "back");
+                mvwprintw(menuwin, records.size() + 4, 1, "back");
                 wattroff(menuwin, A_REVERSE);
                 wrefresh(menuwin);
                 ch = wgetch(menuwin);

@@ -413,7 +413,7 @@ int Game::main_loop(int hard_level) {
                 }
 
                 speed++;
-                speed %= 10;
+                speed %= 100;
         }
 }
 
