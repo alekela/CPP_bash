@@ -8,6 +8,7 @@
 #include <fstream>
 #include <vector>
 #include <time.h>
+#include <cmath>
 #include <sys/timeb.h>
 #include <string>
 #include "Level.h"
@@ -62,7 +63,7 @@ public:
 
         int check_end();
 
-        void main_loop(int hard_level);
+        int main_loop(int hard_level);
 };
 
 #endif

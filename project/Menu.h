@@ -4,6 +4,7 @@
 #include <iostream>
 #include <curses.h>
 #include <string>
+#include <cmath>
 #include <unistd.h>
 #include <fstream>
 #include <vector>
@@ -27,11 +28,11 @@ public:
 
         void clean();
 
-        void main_loop();
+        void main_loop(std::string);
 
         int menu_loop();
 
-        void record_loop();
+        void record_loop(int, int);
 
         void setting_loop(int* hard_level, int* num_level);
 };

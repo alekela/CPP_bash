@@ -11,10 +11,10 @@ void ExitProgram(const char *message, int ans) {
 
 
 void InitCurses() {
-        initscr();
         curs_set(0);
         keypad(stdscr, TRUE);
         nodelay(stdscr, TRUE);
+        //timeout(10);
         nonl();
         cbreak();
         noecho();
@@ -36,20 +36,39 @@ void InitCurses() {
         init_pair(14,    COLOR_GREEN,  COLOR_BLACK);
 }
 
-int main() {
-        InitCurses();
+
+int main(int argc, char* argv[]) {
+        initscr();
+        // preferable window params
+        int win_width, win_height;
+        win_height = 32;
+        win_width = 28;
+        // actual window params
         int yMax, xMax;
         getmaxyx(stdscr, yMax, xMax);
         if (yMax < 35 || xMax < 30) {
                 ExitProgram("Your terminal must be at least 35 rows and 30 coloms to play game", -1);
         }
 
-        int win_width, win_height;
-        win_height = 32;
-        win_width = 28;
+        std::string name;
+        WINDOW* mainwin;
+        mainwin = newwin(4, win_width, (yMax - 4) / 2, (xMax - win_width) / 2);
+        mvwprintw(mainwin, 1, 1, "Hello! Enter your name: \n");
+        nocbreak();
+        echo();
+        char ch = wgetch(mainwin);
+        while (ch != '\n') {
+                name.push_back(ch);
+                ch = wgetch(mainwin);
+        }
+
+        InitCurses();
+        if (argc > 1) {
+                 name = argv[1];
+        }
         Menu menu(win_height, win_width);
         try {
-                menu.main_loop();
+                menu.main_loop(name);
                 ExitProgram("Bye-bye", 0);
         }
         catch (const my_error& err) {
@@ -57,3 +76,4 @@ int main() {
         }
         return 0;
 }
+
