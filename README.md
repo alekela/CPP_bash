@@ -10,4 +10,5 @@ need to be done:
 7) add bullets and shooting mechanism✅
 8) add statistic (records)✅
 9) remove ExitProgram by adding my class of Exception✅
-10) more levels, new ideas)
+10) remake slowing down figures with another wait, hard_level
+11) more levels, new ideas)
