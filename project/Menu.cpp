@@ -26,14 +26,14 @@ void Menu::main_loop(std::string name) {
         while(true) {
                 ch = menu_loop();
                 if (ch == 0) {
-                        std::string filename = "level";
+                        std::string filename = "Levels/level";
                         filename += std::to_string(num_of_level);
                         filename += ".txt";
                         Game game(_height, _width, filename);
                         int score = game.main_loop(hard_level);
                         if (score != 0) {
                                 std::ifstream file;
-                                std::string outfilename = "stats_level_";
+                                std::string outfilename = "Stats/stats_level_";
                                 outfilename += std::to_string(num_of_level);
                                 outfilename += "_";
                                 outfilename += std::to_string(hard_level);
@@ -124,7 +124,7 @@ int Menu::menu_loop() {
 
 void Menu::record_loop(int hard_level, int num_of_level){
         std::string filename;
-        filename += "stats_level_";
+        filename += "Stats/stats_level_";
         filename += std::to_string(num_of_level);
         filename += "_";
         filename += std::to_string(hard_level);
