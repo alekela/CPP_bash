@@ -7,7 +7,7 @@ Menu::Menu(int height, int width) {
         menuwin = newwin(height, width, (y_max - height) / 2, (x_max - width) / 2);
 
         //box(menuwin, 0, 0);
-        wborder(menuwin, 0, 0, 0, 0, 0, 0, 0, 0);
+        wborder(menuwin, '|', '|', '-', '-', '+', '+', '+', '+');
         keypad(menuwin, true);
 }
 
@@ -17,7 +17,7 @@ void Menu::clean(){
                         mvwprintw(menuwin, i, j, " ");
                 }
         }
-        box(menuwin, 0, 0);
+        wborder(menuwin, '|', '|', '-', '-', '+', '+', '+', '+');
 }
 
 void Menu::write_score_to_file(int score, std::string name, int hard_level, int num_of_level) {
@@ -114,7 +114,7 @@ int Menu::menu_loop() {
                 }
 
                 mvwprintw(menuwin, _height / 2 + 4, 2, "WASD move, space choose");
-                mvwprintw(menuwin, _height / 2 + 5, 1, "F to fire");
+                mvwprintw(menuwin, _height / 2 + 5, 2, "F to fire");
 
                 wrefresh(menuwin);
                 ch = wgetch(menuwin);
