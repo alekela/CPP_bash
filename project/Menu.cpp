@@ -6,7 +6,8 @@ Menu::Menu(int height, int width) {
         _width = width;
         menuwin = newwin(height, width, (y_max - height) / 2, (x_max - width) / 2);
 
-        box(menuwin, 0, 0);
+        //box(menuwin, 0, 0);
+        wborder(menuwin, 0, 0, 0, 0, 0, 0, 0, 0);
         keypad(menuwin, true);
 }
 
