@@ -108,9 +108,13 @@ int Menu::menu_loop() {
                         if (i == highlight) {
                                 wattron(menuwin, A_REVERSE);
                         }
-                        mvwprintw(menuwin, _height / 2 - 5 + 2*i +1, 1, choices[i].c_str());
+                        mvwprintw(menuwin, _height / 2 - 5 + 2*i +1, (_width - choices[i].size()) / 2, choices[i].c_str());
                         wattroff(menuwin, A_REVERSE);
                 }
+
+                mvwprintw(menuwin, _height / 2 + 4, 1, "WASD move, space to choose");
+                mvwprintw(menuwin, _height / 2 + 5, 1, "F to fire");
+
                 wrefresh(menuwin);
                 ch = wgetch(menuwin);
 

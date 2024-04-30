@@ -27,7 +27,7 @@ void InitCurses(int speed_delay) {
         init_pair(Wall,      COLOR_WHITE,   COLOR_WHITE);
         init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
         init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
-        init_pair(Shot, COLOR_BLUE, COLOR_BLACK);
+        init_pair(Shot, COLOR_YELLOW, COLOR_BLACK);
 
         init_pair(10,    COLOR_RED,     COLOR_BLACK);
         init_pair(11,    COLOR_CYAN,    COLOR_BLACK);
@@ -54,10 +54,12 @@ int main(int argc, char* argv[]) {
         std::string name;
         WINDOW* mainwin;
         mainwin = newwin(4, win_width, (yMax - 4) / 2, (xMax - win_width) / 2);
-        mvwprintw(mainwin, 1, 1, "Hello! Enter your name: \n");
+        mvwprintw(mainwin, 1, 1, "Hello! Enter your name. \n");
+        mvwprintw(mainwin, 2, 1, "(15 sym max): ");
+
         nocbreak();
         echo();
-        wmove(mainwin, 2, 1);
+        wmove(mainwin, 3, 1);
         char ch = wgetch(mainwin);
         while (ch != '\n') {
                 name.push_back(ch);

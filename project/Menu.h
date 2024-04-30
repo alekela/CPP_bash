@@ -20,7 +20,7 @@ private:
         int y_max, x_max;
 
 public:
-        std::vector<std::string> choices = {"Play", "Records", "Settings", "Exit"};
+        std::vector<std::string> choices = {"Play", "Scores", "Settings", "Exit"};
         std::vector<std::string> settings_choices = {"Difficulty:", "Level:", "back"};
         std::vector<std::string> difficult = {"Easy", "Medium", "Hard"};
 
