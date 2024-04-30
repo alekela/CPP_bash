@@ -112,7 +112,7 @@ int Menu::menu_loop() {
                         wattroff(menuwin, A_REVERSE);
                 }
 
-                mvwprintw(menuwin, _height / 2 + 4, 1, "WASD move, space to choose");
+                mvwprintw(menuwin, _height / 2 + 4, 2, "WASD move, space choose");
                 mvwprintw(menuwin, _height / 2 + 5, 1, "F to fire");
 
                 wrefresh(menuwin);
