@@ -203,7 +203,7 @@ void Menu::setting_loop(int* hard_level, int* num_level){
                         }
                         else if (highlight == 1) {
                                 num_of_level++;
-                                num_of_level = (num_of_level - 1) % 2 + 1;
+                                num_of_level = (num_of_level - 1) % 3 + 1;
                         }
                         else if (highlight == 2) {
                                 *(hard_level) = hard;
