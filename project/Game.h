@@ -40,7 +40,6 @@ public:
 
         void move_monster(int y, int x, int ny, int nx, Monster* mon);
 
-
         int check_ghost(int y, int x);
 
         void move_ghosts(int hard_level);
@@ -63,7 +62,7 @@ public:
 
         int check_end();
 
-        int main_loop(int hard_level);
+        int main_loop(int hard_level, int speed);
 };
 
 #endif

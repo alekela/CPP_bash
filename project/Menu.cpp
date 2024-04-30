@@ -19,7 +19,52 @@ void Menu::clean(){
         box(menuwin, 0, 0);
 }
 
-void Menu::main_loop(std::string name) {
+void Menu::write_score_to_file(int score, std::string name, int hard_level, int num_of_level) {
+        std::ifstream file;
+        std::string outfilename = "Stats/stats_level_";
+        outfilename += std::to_string(num_of_level);
+        outfilename += "_";
+        outfilename += std::to_string(hard_level);
+        outfilename += ".txt";
+        file.open(outfilename);
+        if (!file.is_open()) {
+                file.close();
+                std::ofstream file2;
+                file2.open(outfilename);
+                file2.close();
+                file.open(outfilename);
+        }
+        std::vector<std::string> names;
+        std::vector<int> scores;
+        scores.push_back(score);
+        names.push_back(name);
+        std::string s;
+        while (getline(file, s)) {
+                names.push_back(s.substr(0, s.find('\t')));
+                s.erase(0, s.find('\t') + 1);
+                scores.push_back(std::stoi(s));
+        }
+        file.close();
+
+        for (int i = 0; i < names.size(); i++) {
+                for (int j = 0; j < names.size() - i - 1; j++) {
+                        if (scores[j] < scores[j+1]) {
+                                std::swap(scores[j], scores[j+1]);
+                                std::swap(names[j], names[j+1]);
+                        }
+                }
+        }
+        std::ofstream file3;
+        file3.open(outfilename);
+        for (int i = 0; i < 5; i++) {
+                if (i < names.size()) {
+                        file3 << names[i] << "\t" << std::to_string(scores[i]) << std::endl;
+                }
+        }
+        file3.close();
+}
+
+void Menu::main_loop(std::string name, int speed_of_game) {
         int ch;
         int hard_level = 0;
         int num_of_level = 1;
@@ -30,50 +75,10 @@ void Menu::main_loop(std::string name) {
                         filename += std::to_string(num_of_level);
                         filename += ".txt";
                         Game game(_height, _width, filename);
-                        int score = game.main_loop(hard_level);
-                        if (score != 0) {
-                                std::ifstream file;
-                                std::string outfilename = "Stats/stats_level_";
-                                outfilename += std::to_string(num_of_level);
-                                outfilename += "_";
-                                outfilename += std::to_string(hard_level);
-                                outfilename += ".txt";
-                                file.open(outfilename);
-                                if (!file.is_open()) {
-                                        file.close();
-                                        std::ofstream file2;
-                                        file2.open(outfilename);
-                                        file2.close();
-                                        file.open(outfilename);
-                                }
-                                std::vector<std::string> names;
-                                std::vector<int> scores;
-                                scores.push_back(score);
-                                names.push_back(name);
-                                std::string s;
-                                while (getline(file, s)) {
-                                        names.push_back(s.substr(0, s.find('\t')));
-                                        s.erase(0, s.find('\t') + 1);
-                                        scores.push_back(std::stoi(s));
-                                }
-                                file.close();
+                        int score = game.main_loop(hard_level, speed_of_game);
 
-                                for (int i = 0; i < names.size(); i++) {
-                                        for (int j = 0; j < names.size() - i - 1; j++) {
-                                                if (scores[j] < scores[j+1]) {
-                                                        std::swap(scores[j], scores[j+1]);
-                                                        std::swap(names[j], names[j+1]);
-                                                }
-                                        }
-                                }
-                                std::ofstream file3;
-                                file3.open(outfilename);
-                                for (int i = 0; i < 5; i++) {
-                                        if (i < names.size()) {
-                                                file3 << names[i] << "\t" << std::to_string(scores[i]) << std::endl;
-                                        }
-                                }
-                                file3.close();
+                        if (score != 0) {
+                                write_score_to_file(score, name, hard_level, num_of_level);
                         }
                         clean();
                 }

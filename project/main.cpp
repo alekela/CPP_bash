@@ -10,11 +10,11 @@ void ExitProgram(const char *message, int ans) {
 }
 
 
-void InitCurses() {
+void InitCurses(int speed_delay) {
         curs_set(0);
         keypad(stdscr, TRUE);
-        nodelay(stdscr, TRUE);
-        //timeout(10);
+        //nodelay(stdscr, TRUE);
+        timeout(speed_delay);
         nonl();
         cbreak();
         noecho();
@@ -49,6 +49,7 @@ int main(int argc, char* argv[]) {
         if (yMax < 35 || xMax < 30) {
                 ExitProgram("Your terminal must be at least 35 rows and 30 coloms to play game", -1);
         }
+        int speed = 10;
 
         std::string name;
         WINDOW* mainwin;
@@ -63,13 +64,13 @@ int main(int argc, char* argv[]) {
                 ch = wgetch(mainwin);
         }
 
-        InitCurses();
+        InitCurses(speed);
         if (argc > 1) {
                  name = argv[1];
         }
         Menu menu(win_height, win_width);
         try {
-                menu.main_loop(name);
+                menu.main_loop(name, speed);
                 ExitProgram("Bye-bye", 0);
         }
         catch (const my_error& err) {

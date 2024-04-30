@@ -349,71 +349,62 @@ int Game::check_end() {
         return 0;
 }
 
-int Game::main_loop(int hard_level) {
+int Game::main_loop(int hard_level, int speed) {
         char ch;
         int dx, dy;
         int counter = 0; // for slowing down monsters
         int bullet_counter = 0; // for slowing down bullets
-        int speed = 0;
-        time_t start = time(NULL);
-        long int pause_time;
+        int max_bullet = 20. / speed;
+        long long int time;
         while (true) {
-                if (speed == 0) {
+                ch = getch();
+                if (ch == ' ') {
                         ch = getch();
-                        if (ch == ' ') {
-                                time_t pause_start = time(NULL);
+                        while(ch != ' ') {
+                                draw_pause();
                                 ch = getch();
-                                while(ch != ' ') {
-                                        draw_pause();
-                                        ch = getch();
-                                        if (ch == 'Q' || ch == 'q') { return 0; }
-                                }
-                                time_t pause_end = time(NULL);
-                                pause_time += pause_end - pause_start;
+                                if (ch == 'Q' || ch == 'q') { return 0; }
                         }
-                        if (ch == 'Q' || ch == 'q') { return 0; }
-
-                        dx = 0;
-                        dy = 0;
-                        if (ch == KEY_UP || ch == 'W' || ch == 'w') { dy = -1; }
-                        else if (ch == KEY_DOWN || ch == 'S' || ch == 's') { dy = 1; }
-                        else if (ch == KEY_LEFT || ch == 'A' || ch == 'a') { dx = -1; }
-                        else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') { dx = 1; }
-
-                        else if (ch == 'F' || ch == 'f') { shoot();}
-
-                        move_all(dy, dx, hard_level, counter, bullet_counter);
-                        counter++;
-                        counter %= 2001;
-                        bullet_counter++;
-                        bullet_counter %= 501;
-                        draw(2 * dy + dx);
-                        display_status();
-                        if (check_end() == 1) {
-                                time_t endtime = time(NULL);
-                                draw_winner();
-                                double x = (endtime - start - pause_time) / 200.;
-                                for (auto i: ghosts) {
-                                        if (i->state == 0) {
-                                                player.score += 50;
-                                        }
-                                }
-                                return player.score + 100 * hard_level;
-                        }
-                        if (check_end() == 2) {
-                                draw_loser();
-                                for (auto i: ghosts) {
-                                        if (i->state == 0) {
-                                                player.score += 50;
-                                        }
-                                }
-                                return player.score + 100 * hard_level;
-                        }
-                        usleep(10);
                 }
+                if (ch == 'Q' || ch == 'q') { return 0; }
 
-                speed++;
-                speed %= 100;
+                dx = 0;
+                dy = 0;
+                if (ch == KEY_UP || ch == 'W' || ch == 'w') { dy = -1; }
+                else if (ch == KEY_DOWN || ch == 'S' || ch == 's') { dy = 1; }
+                else if (ch == KEY_LEFT || ch == 'A' || ch == 'a') { dx = -1; }
+                else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') { dx = 1; }
+
+                else if (ch == 'F' || ch == 'f') { shoot();}
+
+                move_all(dy, dx, hard_level, counter, bullet_counter);
+                counter++;
+                counter %= max_bullet * 5 * (4 - hard_level);
+                bullet_counter++;
+                bullet_counter %= max_bullet;
+                draw(2 * dy + dx);
+                display_status();
+                time++;
+                if (check_end() == 1) {
+                        draw_winner();
+                        double x = (double) time / (speed * 100.);
+                        for (auto i: ghosts) {
+                                if (i->state == 0) {
+                                        player.score += 50;
+                                }
+                        }
+                        return player.score + 100 * hard_level + 100 * player.lifes + (int) (1000 * pow(2, -x));
+                }
+                if (check_end() == 2) {
+                        draw_loser();
+                        for (auto i: ghosts) {
+                                if (i->state == 0) {
+                                        player.score += 50;
+                                }
+                        }
+                        return player.score + 100 * hard_level;
+                }
+                usleep(10);
         }
 }
 

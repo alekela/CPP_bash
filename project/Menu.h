@@ -28,7 +28,9 @@ public:
 
         void clean();
 
-        void main_loop(std::string);
+        void write_score_to_file(int, std::string, int, int);
+
+        void main_loop(std::string, int);
 
         int menu_loop();
 
