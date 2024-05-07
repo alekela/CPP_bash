@@ -78,6 +78,16 @@ void Level::generate_level() {
 
         field[points[h-2][w/2].first][points[h-2][w/2].second] = Pacman;
         field[points[2][w/2+1].first][points[2][w/2+1].second] = Teleport;
+
+        for (int i  = 0; i < 6; i++) {
+                int y = rand() % height;
+                int x = rand() % width;
+                while (field[y][x] != 2) {
+                        y = rand() % height;
+                        x = rand() % width;
+                }
+                field[y][x] = Ghost_wall;
+        }
 }
 
 
@@ -178,6 +188,11 @@ void Level::drawLevel(WINDOW *win) {
                                 chr = '#';
                                 attr = A_NORMAL;
                                 wattron(win, COLOR_PAIR(Teleport));
+                        }
+                        else if (tmp == Ghost_wall) {
+                                chr = ' ';
+                                attr = A_NORMAL;
+                                wattron(win, COLOR_PAIR(Wall));
                         }
                         mvwaddch(win, i, j, chr | attr);
                 }
