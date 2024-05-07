@@ -23,10 +23,16 @@ void Menu::clean(){
 void Menu::write_score_to_file(int score, std::string name, int hard_level, int num_of_level) {
         std::ifstream file;
         std::string outfilename = "Stats/stats_level_";
-        outfilename += std::to_string(num_of_level);
-        outfilename += "_";
-        outfilename += std::to_string(hard_level);
-        outfilename += ".txt";
+
+        if (num_of_level == 0) {
+                outfilename = "Stats/stats_random_level.txt";
+        }
+        else {
+                outfilename += std::to_string(num_of_level);
+                outfilename += "_";
+                outfilename += std::to_string(hard_level);
+                outfilename += ".txt";
+        }
         file.open(outfilename);
         if (!file.is_open()) {
                 file.close();
@@ -68,13 +74,19 @@ void Menu::write_score_to_file(int score, std::string name, int hard_level, int 
 void Menu::main_loop(std::string name, int speed_of_game) {
         int ch;
         int hard_level = 0;
-        int num_of_level = 1;
+        int num_of_level = 0;
         while(true) {
                 ch = menu_loop();
                 if (ch == 0) {
                         std::string filename = "Levels/level";
-                        filename += std::to_string(num_of_level);
-                        filename += ".txt";
+
+                        if (num_of_level == 0) {
+                                filename = "random";
+                        }
+                        else {
+                                filename += std::to_string(num_of_level);
+                                filename += ".txt";
+                        }
                         Game game(_height, _width, filename);
                         int score = game.main_loop(hard_level, speed_of_game);
 
@@ -92,8 +104,13 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                         clean();
                         setting_loop(&hard_level, &num_of_level);
                         clean();
-                        mvwprintw(menuwin, 7, 3, "%s difficulty", difficult[hard_level].c_str());
-                        mvwprintw(menuwin, 8, 3, "Level number %d", num_of_level);
+                        mvwprintw(menuwin, 7, 3, "Difficulty: %s", difficult[hard_level].c_str());
+                        if (num_of_level == 0) {
+                                mvwprintw(menuwin, 8, 3, "Level: random");
+                        }
+                        else {
+                                mvwprintw(menuwin, 8, 3, "Level: %d", num_of_level);
+                        }
                 }
                 else if (ch == 3) {
                         break;
@@ -135,11 +152,16 @@ int Menu::menu_loop() {
 
 void Menu::record_loop(int hard_level, int num_of_level){
         std::string filename;
-        filename += "Stats/stats_level_";
-        filename += std::to_string(num_of_level);
-        filename += "_";
-        filename += std::to_string(hard_level);
-        filename += ".txt";
+        if (num_of_level == 0) {
+                filename = "Stats/stats_random_level.txt";
+        }
+        else {
+                filename += "Stats/stats_level_";
+                filename += std::to_string(num_of_level);
+                filename += "_";
+                filename += std::to_string(hard_level);
+                filename += ".txt";
+        }
         std::ifstream file;
         file.open(filename);
         if (!file.is_open()) {
@@ -157,7 +179,12 @@ void Menu::record_loop(int hard_level, int num_of_level){
         file.close();
         char ch;
         while(true) {
-                mvwprintw(menuwin, 1, 1, "Level: %d\t%s", num_of_level, difficult[hard_level].c_str());
+                if (num_of_level == 0) {
+                        mvwprintw(menuwin, 1, 1, "Level: random\t%s", difficult[hard_level].c_str());
+                }
+                else {
+                        mvwprintw(menuwin, 1, 1, "Level: %d\t%s", num_of_level, difficult[hard_level].c_str());
+                }
                 for (int i = 0; i < records.size(); i++) {
                         std::string s = records[i];
                         mvwprintw(menuwin, i+3, 1, s.substr(0, s.find('\t')).c_str());
@@ -192,7 +219,12 @@ void Menu::setting_loop(int* hard_level, int* num_level){
                 mvwprintw(menuwin, 1, 15, "       ");
                 mvwprintw(menuwin, 1, 15, difficult[hard].c_str());
                 mvwprintw(menuwin, 2, 15, "       ");
-                mvwprintw(menuwin, 2, 15, "%d", num_of_level);
+                if (num_of_level == 0) {
+                        mvwprintw(menuwin, 2, 15, "random");
+                }
+                else {
+                        mvwprintw(menuwin, 2, 15, "%d", num_of_level);
+                }
                 wrefresh(menuwin);
                 ch = wgetch(menuwin);
 
@@ -203,7 +235,7 @@ void Menu::setting_loop(int* hard_level, int* num_level){
                         }
                         else if (highlight == 1) {
                                 num_of_level++;
-                                num_of_level = (num_of_level - 1) % 3 + 1;
+                                num_of_level = num_of_level  % 4;
                         }
                         else if (highlight == 2) {
                                 *(hard_level) = hard;

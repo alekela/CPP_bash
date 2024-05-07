@@ -143,10 +143,10 @@ void Game::move_ghosts(int hard_level) {
                 if (level.get_sym(y, x - 1) == Wall || check_ghost(y, x - 1) != -1) { probs[2] = 0; }
                 if (level.get_sym(y + 1, x) == Wall || check_ghost(y + 1, x) != -1) { probs[3] = 0; }
 
-                if (x < player.get_x() && probs[0] != 0) { probs[0] += hard_level; }
-                if (y > player.get_y() && probs[1] != 0) { probs[1] += hard_level; }
-                if (x > player.get_x() && probs[2] != 0) { probs[2] += hard_level; }
-                if (y < player.get_y() && probs[3] != 0) { probs[3] += hard_level; }
+                if (x < player.get_x() && probs[0] != 0) { probs[0] += 2 * hard_level; }
+                if (y > player.get_y() && probs[1] != 0) { probs[1] += 2 * hard_level; }
+                if (x > player.get_x() && probs[2] != 0) { probs[2] += 2 * hard_level; }
+                if (y < player.get_y() && probs[3] != 0) { probs[3] += 2 * hard_level; }
 
                 int counter = 0;
                 for (int j = 0; j < 4; j++) {
