@@ -11,5 +11,5 @@ need to be done:
 8) add statistic (records)✅
 9) remove ExitProgram by adding my class of Exception✅
 10) remake slowing down figures with another wait, hard_level✅
-11) add auto-generation of level
+11) add auto-generation of level✅
 12) add new type of bonuses (semi-transparent wall)
