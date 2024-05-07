@@ -1,6 +1,7 @@
 #include "Game.h"
 
 Game::Game(int height, int width, std::string filename) : level(height-3, width, filename) {
+        srand(time(0));
         for (int i = 0; i < level.get_height(); i++) {
                 for (int j = 0; j < level.get_width(); j++) {
                         if (level.get_sym(i, j) == Pacman) {
@@ -103,6 +104,9 @@ void Game::move_player(int dy, int dx) {
                 if (p != -1) {
                         player.arsenal++;
                         ammo[p]->state = 1;
+                }
+                if (level.get_sym(ny, nx) == Teleport) {
+                        player.teleports++;
                 }
                 player.set_pos(ny, nx);
                 level.set_sym(ny, nx, Empty);
@@ -262,7 +266,7 @@ void Game::display_status() {
         wmove(status, 2, 1);
         wprintw(status, "Ammo: ");
         wattron(status, COLOR_PAIR(Shot));
-        for(int a = 0; a < 10; a++) {
+        for(int a = 0; a < 5; a++) {
                 if (a < player.arsenal) {
                         wprintw(status, "* ");
                 }
@@ -270,6 +274,8 @@ void Game::display_status() {
                         wprintw(status, "  ");
                 }
         }
+        wattroff(status, COLOR_PAIR(Shot));
+        wprintw(status, "Teleport: %d", player.teleports);
         wrefresh(status);
 }
 
@@ -320,6 +326,19 @@ void Game::shoot() {
                         ammo[p]->dy = ny - y;
                 }
 
+        }
+}
+
+void Game::teleport() {
+        if (player.teleports > 0) {
+                player.teleports--;
+                int y = rand() % level.get_height();
+                int x = rand() % level.get_width();
+                while (level.get_sym(y, x) == Wall) {
+                        y = rand() % level.get_height();
+                        x = rand() % level.get_width();
+                }
+                player.set_pos(y, x);
         }
 }
 
@@ -376,6 +395,7 @@ int Game::main_loop(int hard_level, int speed) {
                 else if (ch == KEY_RIGHT || ch == 'D' || ch == 'd') { dx = 1; }
 
                 else if (ch == 'F' || ch == 'f') { shoot();}
+                else if (ch == 'E' || ch == 'e') {teleport();}
 
                 move_all(dy, dx, hard_level, counter, bullet_counter);
                 counter++;

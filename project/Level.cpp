@@ -65,56 +65,19 @@ void Level::generate_level() {
         }
 
         // place Pacman, Monsters and bonuses
-        bool flagp = false;
-        bool flagm1 = false;
-        bool flagm2 = false;
-        bool flagm3 = false;
-        bool flagm4 = false;
-        bool flagb1 = false;
-        bool flagb2 = false;
-        bool flagb3 = false;
-        bool flagb4 = false;
 
-        for (int i = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++) {
-                        if (field[i][j] == 2 && !flagm1) {
-                                field[i][j] = 4;
-                                flagm1 = true;
-                        }
-                        if (field[i][j] == 2 && !flagb1) {
-                                field[i][j] = 5;
-                                flagb1 = true;
-                        }
-                        if (field[(h-1) * 4 + i][(w-1)*4+j] == 2 && !flagm2) {
-                                field[(h-1) * 4 + i][(w-1)*4+j] = 4;
-                                flagm2 = true;
-                        }
-                        if (field[(h-1) * 4 + i][(w-1)*4+j] == 2 && !flagb2) {
-                                field[(h-1) * 4 + i][(w-1)*4+j] = 5;
-                                flagb2 = true;
-                        }
-                        if (field[(h-1) * 4 + i][j] == 2 && !flagb3) {
-                                field[(h-1) * 4 + i][j] = 5;
-                                flagb3 = true;
-                        }
-                        if (field[(h-1) * 4 + i][j] == 2 && !flagm3) {
-                                field[(h-1) * 4 + i][j] = 4;
-                                flagm3 = true;
-                        }
-                        if (field[i][(w-1)*4+j] == 2 && !flagb4) {
-                                field[i][(w-1)*4+j] = 5;
-                                flagb4 = true;
-                        }
-                        if (field[i][(w-1)*4+j] == 2 && !flagm4) {
-                                field[i][(w-1)*4+j] = 4;
-                                flagm4 = true;
-                        }
-                        if (field[(h-2) * 4 + i][(w-1) / 2*4+j] == 2 && !flagp) {
-                                field[(h-2) * 4 + i][(w-1) / 2*4+j] = 3;
-                                flagp = true;
-                        }
-                }
-        }
+        field[points[0][0].first][points[0][0].second] = Ghost;
+        field[points[h-1][w-1].first][points[h-1][w-1].second] = Ghost;
+        field[points[0][w-1].first][points[0][w-1].second] = Ghost;
+        field[points[h-1][0].first][points[h-1][0].second] = Ghost;
+
+        field[points[0][1].first][points[0][1].second] = Shot;
+        field[points[h-1][w-2].first][points[h-1][w-2].second] = Shot;
+        field[points[1][w-1].first][points[1][w-1].second] = Shot;
+        field[points[h-1][1].first][points[h-1][1].second] = Shot;
+
+        field[points[h-2][w/2].first][points[h-2][w/2].second] = Pacman;
+        field[points[2][w/2+1].first][points[2][w/2+1].second] = Teleport;
 }
 
 
@@ -210,6 +173,11 @@ void Level::drawLevel(WINDOW *win) {
                                 chr = '.';
                                 attr = A_NORMAL;
                                 wattron(win, COLOR_PAIR(Pellet));
+                        }
+                        else if (tmp == Teleport) {
+                                chr = '#';
+                                attr = A_NORMAL;
+                                wattron(win, COLOR_PAIR(Teleport));
                         }
                         mvwaddch(win, i, j, chr | attr);
                 }

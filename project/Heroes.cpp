@@ -4,6 +4,7 @@ Player::Player() {
     score = 0;
     lifes = 3;
     arsenal = 0;
+    teleports = 0;
 }
 
 

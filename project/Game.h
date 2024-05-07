@@ -11,6 +11,7 @@
 #include <cmath>
 #include <sys/timeb.h>
 #include <string>
+#include <cstdlib>
 #include "Level.h"
 
 
@@ -57,6 +58,8 @@ public:
         void display_status();
 
         void shoot();
+
+        void teleport();
 
         int check_collisions();
 

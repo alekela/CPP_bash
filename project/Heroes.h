@@ -3,7 +3,7 @@
 
 #include "curses.h"
 
-enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3, Ghost = 4, Shot = 5};
+enum { Empty = 0, Wall = 1, Pellet=2, Pacman=3, Ghost = 4, Shot = 5, Teleport = 6};
 
 
 class Player {
@@ -16,6 +16,7 @@ public:
         size_t lifes;
         int start_y, start_x;
         int arsenal;
+        int teleports;
 
         Player();
 

@@ -87,8 +87,18 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                                 filename += std::to_string(num_of_level);
                                 filename += ".txt";
                         }
+                        mvprintw((y_max - _height) / 2 - 3, (x_max - _width) / 2, "WASD to move, F to fire");
+                        mvprintw((y_max - _height) / 2 - 2, (x_max - _width) / 2, "E to teleport, Space to pause");
+                        refresh();
+
                         Game game(_height, _width, filename);
                         int score = game.main_loop(hard_level, speed_of_game);
+
+                        move((y_max - _height) / 2 - 3, (x_max - _width) / 2);
+                        clrtoeol();
+                        move((y_max - _height) / 2 - 2, (x_max - _width) / 2);
+                        clrtoeol();
+                        refresh();
 
                         if (score != 0) {
                                 write_score_to_file(score, name, hard_level, num_of_level);
@@ -130,8 +140,7 @@ int Menu::menu_loop() {
                         wattroff(menuwin, A_REVERSE);
                 }
 
-                mvwprintw(menuwin, _height / 2 + 4, 2, "WASD move, space choose");
-                mvwprintw(menuwin, _height / 2 + 5, 2, "F to fire");
+                mvwprintw(menuwin, _height / 2 + 4, 2, "W/S move, space choose");
 
                 wrefresh(menuwin);
                 ch = wgetch(menuwin);
