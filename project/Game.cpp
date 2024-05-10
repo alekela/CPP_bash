@@ -229,23 +229,21 @@ void Game::draw_pause() {
 void Game::draw_winner() {
         wattron(win, COLOR_PAIR(Pacman));
         mvwprintw(win, 12, 7, "***************");
-        mvwprintw(win, 13, 7, "*You've won!!!*");
-        mvwprintw(win, 14, 7, "*back to menu *");
-        mvwprintw(win, 15, 7, "* after 5 sec *");
+        mvwprintw(win, 13, 7, "* You've won! *");
+        mvwprintw(win, 14, 7, "*   press E   *");
+        mvwprintw(win, 15, 7, "*  to return  *");
         mvwprintw(win, 16, 7, "***************");
         wrefresh(win);
-        usleep(5000000);
 }
 
 void Game::draw_loser() {
         wattron(win, COLOR_PAIR(Pacman));
         mvwprintw(win, 12, 7, "***************");
-        mvwprintw(win, 13, 7, "*You've lose..*");
-        mvwprintw(win, 14, 7, "*back to menu *");
-        mvwprintw(win, 15, 7, "* after 5 sec *");
+        mvwprintw(win, 13, 7, "*  Game over  *");
+        mvwprintw(win, 14, 7, "*   press E   *");
+        mvwprintw(win, 15, 7, "*  to return  *");
         mvwprintw(win, 16, 7, "***************");
         wrefresh(win);
-        usleep(5000000);
 }
 
 void Game::display_status() {
@@ -406,7 +404,10 @@ int Game::main_loop(int hard_level, int speed) {
                 display_status();
                 time++;
                 if (check_end() == 1) {
-                        draw_winner();
+			while (ch != 'E' && ch != 'e') {
+                        	draw_winner();
+				ch = getch();
+			}
                         double x = (double) time / (speed * 100.);
                         for (auto i: ghosts) {
                                 if (i->state == 0) {
@@ -416,7 +417,10 @@ int Game::main_loop(int hard_level, int speed) {
                         return player.score + 100 * hard_level + 100 * player.lifes + (int) (1000 * pow(2, -x));
                 }
                 if (check_end() == 2) {
-                        draw_loser();
+			while (ch != 'E' && ch != 'e') {
+                        	draw_loser();
+				ch = getch();
+			}
                         for (auto i: ghosts) {
                                 if (i->state == 0) {
                                         player.score += 50;

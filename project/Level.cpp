@@ -94,21 +94,21 @@ void Level::merge_points(std::pair<int, int> point1, std::pair<int, int> point2,
         dx *= inx;
         dy *= iny;
         while (y1 != y2 || x1 != x2) {
-                if (x1 != x2 && y1 != y2) {
-			if (x1 == 0 || x1 == width){
+		if (x1 != x2 && y1 != y2) {
+			if (x1 == 0 || x1 == width-1){
 				x1 += dx;
 			}
-			else if (y1 == 0 || y1 == height) {
+			else if (y1 == 0 || y1 == height-1) {
 				y1 += dy;
 			}
 			else {
                         	int r = rand() % 2;
-                        	if (r == 0) {
-                                	x1 += dx;
-                        	}
-                        	else {
-                                	y1 += dy;
-                        	}
+                       		if (r == 0) {
+                        	       	x1 += dx;
+                       		}
+                       		else {
+                        	       	y1 += dy;
+                       		}
 			}
                 }
                 else if (x1 != x2) {

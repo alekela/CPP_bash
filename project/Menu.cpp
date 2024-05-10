@@ -87,8 +87,8 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                                 filename += std::to_string(num_of_level);
                                 filename += ".txt";
                         }
-                        mvprintw((y_max - _height) / 2 - 3, (x_max - _width) / 2, "WASD to move, F to fire, P to quit");
-                        mvprintw((y_max - _height) / 2 - 2, (x_max - _width) / 2, "E to teleport, Space to pause");
+                        mvprintw((y_max - _height) / 2 - 3, (x_max - _width) / 2, "WASD move, F fire, P quit");
+                        mvprintw((y_max - _height) / 2 - 2, (x_max - _width) / 2, "E - teleport, Space - pause");
                         refresh();
 
                         Game game(_height, _width, filename);
@@ -203,7 +203,9 @@ void Menu::record_loop(int hard_level, int num_of_level){
                 wattron(menuwin, A_REVERSE);
                 mvwprintw(menuwin, records.size() + 4, 1, "back");
                 wattroff(menuwin, A_REVERSE);
+                mvwprintw(menuwin, _height / 2 + 4, 2, "Space choose");
                 wrefresh(menuwin);
+
                 ch = wgetch(menuwin);
 
                 if (ch == ' ') {
@@ -234,8 +236,10 @@ void Menu::setting_loop(int* hard_level, int* num_level){
                 else {
                         mvwprintw(menuwin, 2, 15, "%d", num_of_level);
                 }
+                mvwprintw(menuwin, _height / 2 + 4, 2, "W/S move, space choose");
                 wrefresh(menuwin);
-                ch = wgetch(menuwin);
+                
+		ch = wgetch(menuwin);
 
                 if (ch == ' ') {
                         if (highlight == 0) {
