@@ -127,7 +127,7 @@ void Game::move_monster(int y, int x, int ny, int nx, Monster* mon) {
 
 int Game::check_ghost(int y, int x) {
         for (int i = 0; i < enemy_num; i++) {
-                if (ghosts[i]->get_y() == y && ghosts[i]->get_x() == x) {
+                if (ghosts[i]->get_y() == y && ghosts[i]->get_x() == x && ghosts[i]->state != 0) {
                         return i;
                 }
         }
@@ -371,7 +371,7 @@ int Game::main_loop(int hard_level, int speed) {
         int dx, dy;
         int counter = 0; // for slowing down monsters
         int bullet_counter = 0; // for slowing down bullets
-        int max_bullet = 20. / speed;
+        int max_bullet = 40. / speed;
         long long int time;
         while (true) {
                 ch = getch();
