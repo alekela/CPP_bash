@@ -87,7 +87,7 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                                 filename += std::to_string(num_of_level);
                                 filename += ".txt";
                         }
-                        mvprintw((y_max - _height) / 2 - 3, (x_max - _width) / 2, "WASD to move, F to fire");
+                        mvprintw((y_max - _height) / 2 - 3, (x_max - _width) / 2, "WASD to move, F to fire, P to quit");
                         mvprintw((y_max - _height) / 2 - 2, (x_max - _width) / 2, "E to teleport, Space to pause");
                         refresh();
 

@@ -382,10 +382,10 @@ int Game::main_loop(int hard_level, int speed) {
                         while(ch != ' ') {
                                 draw_pause();
                                 ch = getch();
-                                if (ch == 'Q' || ch == 'q') { return 0; }
+                                if (ch == 'P' || ch == 'p') { return 0; }
                         }
                 }
-                if (ch == 'Q' || ch == 'q') { return 0; }
+                if (ch == 'P' || ch == 'p') { return 0; }
 
                 dx = 0;
                 dy = 0;

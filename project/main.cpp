@@ -28,7 +28,7 @@ void InitCurses(int speed_delay) {
         init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
         init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
         init_pair(Shot, COLOR_YELLOW, COLOR_BLACK);
-        init_pair(Teleport, COLOR_RED, COLOR_BLACK);
+        init_pair(Teleport, COLOR_YELLOW, COLOR_BLACK);
 
         init_pair(10,    COLOR_RED,     COLOR_BLACK);
         init_pair(11,    COLOR_CYAN,    COLOR_BLACK);

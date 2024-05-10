@@ -19,42 +19,35 @@ void Level::generate_level() {
                 }
         }
         srand(time(0));
-        int w = width / 4;
-        int h = height / 4;
+	int cluster = 4;
+        int w = width / cluster;
+        int h = height / cluster;
         for (int i = 0; i < h; i++) {
                 points.push_back({});
                 for (int j = 0; j < w; j++) {
-                        int ry = rand() % 4;
-                        int rx = rand() % 4;
-                        points[i].push_back(std::make_pair(i * 4 + ry, j * 4 + rx));
-                        field[i * 4 + ry][j * 4 + rx] = 2;
+                        int ry = rand() % cluster;
+                        int rx = rand() % cluster;
+			while (i * cluster + ry == 0 || i * cluster + ry == height-1 || j * cluster + rx == 0 || j * cluster + rx == width-1){
+				ry = rand() % cluster;
+                        	rx = rand() % cluster;
+			}
+                        points[i].push_back(std::make_pair(i * cluster + ry, j * cluster + rx));
+                        field[i * cluster + ry][j * cluster + rx] = 2;
                 }
         }
 
        for (int i = 0; i < h; i++) {
                 for (int j = 0; j < w; j++) {
                         if (i == h - 1 && j == w - 1) {
-                                int r = rand() % 2;
-                                if (r == 0) {
-                                        merge_points(points[i][j], points[0][j], -1, 1);
-                                }
-                                int r2 = rand() % 2;
-                                if (r2 == 0) {
-                                        merge_points(points[i][j], points[i][0], 1, -1);
-                                }
+                                merge_points(points[i][j], points[0][j], -1, 1);
+                                merge_points(points[i][j], points[i][0], 1, -1);
                         }
                         else if (i == h - 1) {
-                                int r = rand() % 2;
-                                if (r == 0) {
-                                        merge_points(points[i][j], points[0][j], -1, 1);
-                                }
+                                merge_points(points[i][j], points[0][j], -1, 1);
                                 merge_points(points[i][j], points[i][j+1], 1, 1);
                         }
                         else if (j == w - 1) {
-                                int r2 = rand() % 2;
-                                if (r2 == 0) {
-                                        merge_points(points[i][j], points[i][0], 1, -1);
-                                }
+                                merge_points(points[i][j], points[i][0], 1, -1);
                                 merge_points(points[i][j], points[i+1][j], 1, 1);
                         }
                         else {
@@ -79,7 +72,7 @@ void Level::generate_level() {
         field[points[h-2][w/2].first][points[h-2][w/2].second] = Pacman;
         field[points[2][w/2+1].first][points[2][w/2+1].second] = Teleport;
 
-        for (int i  = 0; i < 6; i++) {
+        for (int i  = 0; i < 8; i++) {
                 int y = rand() % height;
                 int x = rand() % width;
                 while (field[y][x] != 2) {
@@ -102,13 +95,21 @@ void Level::merge_points(std::pair<int, int> point1, std::pair<int, int> point2,
         dy *= iny;
         while (y1 != y2 || x1 != x2) {
                 if (x1 != x2 && y1 != y2) {
-                        int r = rand() % 2;
-                        if (r == 0) {
-                                x1 += dx;
-                        }
-                        else {
-                                y1 += dy;
-                        }
+			if (x1 == 0 || x1 == width){
+				x1 += dx;
+			}
+			else if (y1 == 0 || y1 == height) {
+				y1 += dy;
+			}
+			else {
+                        	int r = rand() % 2;
+                        	if (r == 0) {
+                                	x1 += dx;
+                        	}
+                        	else {
+                                	y1 += dy;
+                        	}
+			}
                 }
                 else if (x1 != x2) {
                         x1 += dx;
