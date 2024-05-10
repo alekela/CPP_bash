@@ -72,7 +72,7 @@ void Level::generate_level() {
         field[points[h-2][w/2].first][points[h-2][w/2].second] = Pacman;
         field[points[2][w/2+1].first][points[2][w/2+1].second] = Teleport;
 
-        for (int i  = 0; i < 8; i++) {
+        for (int i  = 0; i < 30; i++) {
                 int y = rand() % height;
                 int x = rand() % width;
                 while (field[y][x] != 2) {
