@@ -145,7 +145,7 @@ int Menu::menu_loop() {
                 wrefresh(menuwin);
                 ch = wgetch(menuwin);
 
-                if (ch == ' ') {
+                if (ch == ' ' || (int) ch == 10) {
                         return highlight;
                 }
                 if (ch == KEY_UP || ch == 'W' || ch == 'w') {
@@ -241,7 +241,7 @@ void Menu::setting_loop(int* hard_level, int* num_level){
                 
 		ch = wgetch(menuwin);
 
-                if (ch == ' ') {
+                if (ch == ' ' || (int) ch == 10) {
                         if (highlight == 0) {
                                 hard++;
                                 hard = hard % 3;
