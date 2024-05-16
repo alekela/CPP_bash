@@ -129,9 +129,9 @@ void Menu::main_loop(std::string name, int speed_of_game) {
 }
 
 int Menu::menu_loop() {
-        char ch;
+        char ch = 0;
         int highlight = 0;
-        while(true) {
+        while(ch != '\n') {
                 for (int i = 0; i < choices.size(); i++) {
                         if (i == highlight) {
                                 wattron(menuwin, A_REVERSE);
@@ -157,6 +157,7 @@ int Menu::menu_loop() {
                 if (highlight < 0) {highlight += 4;}
                 else if (highlight > 3) {highlight -= 4;}
         }
+        return highlight;
 }
 
 void Menu::record_loop(int hard_level, int num_of_level){
@@ -238,7 +239,7 @@ void Menu::setting_loop(int* hard_level, int* num_level){
                 }
                 mvwprintw(menuwin, _height / 2 + 4, 2, "W/S move, space choose");
                 wrefresh(menuwin);
-                
+
 		ch = wgetch(menuwin);
 
                 if (ch == ' ') {
