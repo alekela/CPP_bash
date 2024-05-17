@@ -25,7 +25,9 @@ void Menu::write_score_to_file(int score, std::string name, int hard_level, int 
         std::string outfilename = "Stats/stats_level_";
 
         if (num_of_level == 0) {
-                outfilename = "Stats/stats_random_level.txt";
+                outfilename = "Stats/stats_random_level_";
+                outfilename += std::to_string(hard_level);
+                outfilename += ".txt";
         }
         else {
                 outfilename += std::to_string(num_of_level);
@@ -163,7 +165,9 @@ int Menu::menu_loop() {
 void Menu::record_loop(int hard_level, int num_of_level){
         std::string filename;
         if (num_of_level == 0) {
-                filename = "Stats/stats_random_level.txt";
+                filename = "Stats/stats_random_level_";
+		filename += std::to_string(hard_level);
+		filename += ".txt";
         }
         else {
                 filename += "Stats/stats_level_";
