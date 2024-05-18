@@ -42,7 +42,7 @@ void InitCurses(int speed_delay) {
 
 int main(int argc, char* argv[]) {
         initscr();
-        // preferable window params
+
         int win_width, win_height;
         win_height = 34;
         win_width = 30;
