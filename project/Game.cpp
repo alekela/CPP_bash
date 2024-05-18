@@ -431,4 +431,3 @@ int Game::main_loop(int hard_level, int speed) {
                 usleep(10);
         }
 }
-

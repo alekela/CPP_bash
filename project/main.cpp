@@ -3,6 +3,7 @@
 #include <iostream>
 #include "Error.h"
 
+
 void ExitProgram(const char *message, int ans) {
         endwin();
         std::cout << message << std::endl;
@@ -23,8 +24,7 @@ void InitCurses(int speed_delay) {
         }
         start_color();
 
-        init_pair(0, COLOR_WHITE, COLOR_BLACK);
-        init_pair(Wall,      COLOR_WHITE,   COLOR_WHITE);
+        init_pair(Wall,      COLOR_BLACK,   COLOR_WHITE);
         init_pair(Pellet,    COLOR_WHITE,   COLOR_BLACK);
         init_pair(Pacman,    COLOR_YELLOW,  COLOR_BLACK);
         init_pair(Shot, COLOR_YELLOW, COLOR_BLACK);
@@ -35,6 +35,8 @@ void InitCurses(int speed_delay) {
         init_pair(12,    COLOR_MAGENTA, COLOR_BLACK);
         init_pair(13,    COLOR_YELLOW,  COLOR_BLACK);
         init_pair(14,    COLOR_GREEN,  COLOR_BLACK);
+        init_pair(15,    COLOR_BLUE,  COLOR_WHITE);
+
 }
 
 
@@ -42,8 +44,8 @@ int main(int argc, char* argv[]) {
         initscr();
         // preferable window params
         int win_width, win_height;
-        win_height = 32;
-        win_width = 28;
+        win_height = 34;
+        win_width = 30;
         // actual window params
         int yMax, xMax;
         getmaxyx(stdscr, yMax, xMax);
@@ -81,4 +83,3 @@ int main(int argc, char* argv[]) {
         }
         return 0;
 }
-

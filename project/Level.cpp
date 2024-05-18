@@ -1,7 +1,7 @@
 #include "Level.h"
 
 Level::Level(const int _height, const int _width, std::string filename) : width(_width), height(_height) {
-        if (filename == "random") {
+        if (filename == "Levels/random") {
                 generate_level();
         }
         else {

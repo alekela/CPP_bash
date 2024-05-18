@@ -11,7 +11,10 @@
 #include <time.h>
 #include <sys/timeb.h>
 #include <string>
+#include <dirent.h>
 #include "Game.h"
+#include "Editor.h"
+
 
 class Menu {
 private:
@@ -20,9 +23,10 @@ private:
         int y_max, x_max;
 
 public:
-        std::vector<std::string> choices = {"Play", "Scores", "Settings", "Exit"};
+        std::vector<std::string> choices = {"Play", "Scores", "Editor", "Settings", "Exit"};
         std::vector<std::string> settings_choices = {"Difficulty:", "Level:", "back"};
         std::vector<std::string> difficult = {"Easy", "Medium", "Hard"};
+        std::vector<std::string> levels;
 
         Menu(int height, int width);
 

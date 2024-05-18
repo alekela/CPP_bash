@@ -9,32 +9,32 @@ Menu::Menu(int height, int width) {
         //box(menuwin, 0, 0);
         wborder(menuwin, '|', '|', '-', '-', '+', '+', '+', '+');
         keypad(menuwin, true);
+
+        DIR * dir;
+        struct dirent * entry;
+        dir = opendir("Levels/");
+        levels.push_back("random");
+        while ((entry = readdir(dir)) != NULL) {
+                std::string tmp = entry->d_name;
+                if (tmp.compare("..") != 0 && tmp.compare(".") != 0) {
+                        levels.push_back(tmp);
+                }
+        }
+        closedir(dir);
 }
 
 void Menu::clean(){
-        for (int i = 1; i < _height-1; i++) {
-                for (int j = 1; j < _width - 1; j++) {
-                        mvwprintw(menuwin, i, j, " ");
-                }
-        }
+        wclear(menuwin);
+        wrefresh(menuwin);
         wborder(menuwin, '|', '|', '-', '-', '+', '+', '+', '+');
 }
 
 void Menu::write_score_to_file(int score, std::string name, int hard_level, int num_of_level) {
         std::ifstream file;
-        std::string outfilename = "Stats/stats_level_";
-
-        if (num_of_level == 0) {
-                outfilename = "Stats/stats_random_level_";
-                outfilename += std::to_string(hard_level);
-                outfilename += ".txt";
-        }
-        else {
-                outfilename += std::to_string(num_of_level);
-                outfilename += "_";
-                outfilename += std::to_string(hard_level);
-                outfilename += ".txt";
-        }
+        std::string outfilename = "Stats/stats_";
+        outfilename += levels[num_of_level];
+        outfilename += "_";
+        outfilename += std::to_string(hard_level);
         file.open(outfilename);
         if (!file.is_open()) {
                 file.close();
@@ -80,15 +80,8 @@ void Menu::main_loop(std::string name, int speed_of_game) {
         while(true) {
                 ch = menu_loop();
                 if (ch == 0) {
-                        std::string filename = "Levels/level";
-
-                        if (num_of_level == 0) {
-                                filename = "random";
-                        }
-                        else {
-                                filename += std::to_string(num_of_level);
-                                filename += ".txt";
-                        }
+                        std::string filename = "Levels/";
+                        filename += levels[num_of_level];
                         mvprintw((y_max - _height) / 2 - 3, (x_max - _width) / 2, "WASD move, F fire, P quit");
                         mvprintw((y_max - _height) / 2 - 2, (x_max - _width) / 2, "E - teleport, Space - pause");
                         refresh();
@@ -113,18 +106,18 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                         clean();
                 }
                 else if (ch == 2) {
+                        Editor editor(_height-3, _width);
+                        editor.main_loop();
+                        clean();
+                }
+                else if (ch == 3) {
                         clean();
                         setting_loop(&hard_level, &num_of_level);
                         clean();
                         mvwprintw(menuwin, 7, 3, "Difficulty: %s", difficult[hard_level].c_str());
-                        if (num_of_level == 0) {
-                                mvwprintw(menuwin, 8, 3, "Level: random");
-                        }
-                        else {
-                                mvwprintw(menuwin, 8, 3, "Level: %d", num_of_level);
-                        }
+                        mvwprintw(menuwin, 8, 3, "Level: %s", levels[num_of_level].c_str());
                 }
-                else if (ch == 3) {
+                else if (ch == 4) {
                         break;
                 }
         }
@@ -142,12 +135,12 @@ int Menu::menu_loop() {
                         wattroff(menuwin, A_REVERSE);
                 }
 
-                mvwprintw(menuwin, _height / 2 + 4, 2, "W/S move, space choose");
+                mvwprintw(menuwin, _height / 2 + 6, 2, "W/S move, space choose");
 
                 wrefresh(menuwin);
                 ch = wgetch(menuwin);
 
-                if (ch == ' ' || (int) ch == 10) {
+                if (ch == ' ') {
                         return highlight;
                 }
                 if (ch == KEY_UP || ch == 'W' || ch == 'w') {
@@ -156,26 +149,19 @@ int Menu::menu_loop() {
                 else if (ch == KEY_DOWN || ch == 'S' || ch == 's') {
                         highlight++;
                 }
-                if (highlight < 0) {highlight += 4;}
-                else if (highlight > 3) {highlight -= 4;}
+                if (highlight < 0) {highlight += choices.size();}
+                else if (highlight > choices.size() - 1) {highlight -= choices.size();}
         }
         return highlight;
 }
 
 void Menu::record_loop(int hard_level, int num_of_level){
         std::string filename;
-        if (num_of_level == 0) {
-                filename = "Stats/stats_random_level_";
-		filename += std::to_string(hard_level);
-		filename += ".txt";
-        }
-        else {
-                filename += "Stats/stats_level_";
-                filename += std::to_string(num_of_level);
-                filename += "_";
-                filename += std::to_string(hard_level);
-                filename += ".txt";
-        }
+        filename = "Stats/stats_";
+        filename += levels[num_of_level];
+        filename += "_";
+        filename += std::to_string(hard_level);
+
         std::ifstream file;
         file.open(filename);
         if (!file.is_open()) {
@@ -193,12 +179,7 @@ void Menu::record_loop(int hard_level, int num_of_level){
         file.close();
         char ch;
         while(true) {
-                if (num_of_level == 0) {
-                        mvwprintw(menuwin, 1, 1, "Level: random\t%s", difficult[hard_level].c_str());
-                }
-                else {
-                        mvwprintw(menuwin, 1, 1, "Level: %d\t%s", num_of_level, difficult[hard_level].c_str());
-                }
+                mvwprintw(menuwin, 1, 1, "Level: %s\t%s", levels[num_of_level].c_str(), difficult[hard_level].c_str());
                 for (int i = 0; i < records.size(); i++) {
                         std::string s = records[i];
                         mvwprintw(menuwin, i+3, 1, s.substr(0, s.find('\t')).c_str());
@@ -224,7 +205,26 @@ void Menu::setting_loop(int* hard_level, int* num_level){
         int num_of_level = *num_level;
         char ch;
         int highlight = 0;
+        int levels_amount = 0;
+
+        levels.clear();
+        levels.push_back("random");
+        DIR * dir;
+        struct dirent * entry;
+        dir = opendir("Levels/");
+        while ((entry = readdir(dir)) != NULL) {
+                std::string tmp = entry->d_name;
+                if (tmp.compare("..") != 0 && tmp.compare(".") != 0) {
+                        levels.push_back(tmp);
+                        levels_amount++;
+                }
+        }
+        closedir(dir);
+
         while(true) {
+                wclear(menuwin);
+                wborder(menuwin, '|', '|', '-', '-', '+', '+', '+', '+');
+
                 for (int i = 0; i < settings_choices.size(); i++) {
                         if (i == highlight) {
                                 wattron(menuwin, A_REVERSE);
@@ -235,25 +235,20 @@ void Menu::setting_loop(int* hard_level, int* num_level){
                 mvwprintw(menuwin, 1, 15, "       ");
                 mvwprintw(menuwin, 1, 15, difficult[hard].c_str());
                 mvwprintw(menuwin, 2, 15, "       ");
-                if (num_of_level == 0) {
-                        mvwprintw(menuwin, 2, 15, "random");
-                }
-                else {
-                        mvwprintw(menuwin, 2, 15, "%d", num_of_level);
-                }
+                mvwprintw(menuwin, 2, 15, "%s", levels[num_of_level].c_str());
                 mvwprintw(menuwin, _height / 2 + 4, 2, "W/S move, space choose");
                 wrefresh(menuwin);
 
 		ch = wgetch(menuwin);
 
-                if (ch == ' ' || (int) ch == 10) {
+                if (ch == ' ') {
                         if (highlight == 0) {
                                 hard++;
                                 hard = hard % 3;
                         }
                         else if (highlight == 1) {
                                 num_of_level++;
-                                num_of_level = num_of_level  % 4;
+                                num_of_level = num_of_level  % (levels_amount + 1);
                         }
                         else if (highlight == 2) {
                                 *(hard_level) = hard;
