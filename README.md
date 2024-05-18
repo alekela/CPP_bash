@@ -12,5 +12,6 @@ need to be done:
 9) remove ExitProgram by adding my class of Exception✅
 10) remake slowing down figures with another wait, hard_level✅
 11) add auto-generation of level✅
-12) add bonus teleport to random point of level
-13) add new bonus semi-transparent wall
+12) add bonus teleport to random point of level✅
+13) add new bonus semi-transparent wall✅
+14) add level editor✅
