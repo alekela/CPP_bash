@@ -5,11 +5,7 @@ Editor::Editor(int height, int width) {
         level_width = width-2;
         int y_max, x_max;
         getmaxyx(stdscr, y_max, x_max);
-<<<<<<< HEAD
-        editorwin = newwin(height+3, width+2, (y_max - height - 3) / 2, (x_max - width - 2) / 2);
-=======
         editorwin = newwin(height, width, (y_max - height) / 2, (x_max - width) / 2);
->>>>>>> a0c158f9224ab8ecdabaaba8e15c7e6468e23c69
         wborder(editorwin, '|', '|', '-', '-', '+', '+', '+', '+');
         for (int i = 0; i < level_height; i++) {
                 field.push_back({});
@@ -57,7 +53,6 @@ void Editor::main_loop(){
         x = 0;
         int flag = 0;
         int counter = 0;
-        wborder(editorwin, '|', '|', '-', '-', '+', '+', '+', '+');
         draw(y, x, counter, flag);
         char ch = getch();
         while (true) {

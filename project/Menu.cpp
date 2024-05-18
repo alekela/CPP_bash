@@ -106,13 +106,8 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                         clean();
                 }
                 else if (ch == 2) {
-<<<<<<< HEAD
-			clean();
-                        Editor editor(_height-3, _width);
-=======
                         clean();
                         Editor editor(_height, _width);
->>>>>>> a0c158f9224ab8ecdabaaba8e15c7e6468e23c69
                         editor.main_loop();
                         clean();
                 }
