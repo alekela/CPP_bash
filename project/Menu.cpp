@@ -86,7 +86,7 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                         mvprintw((y_max - _height) / 2 - 2, (x_max - _width) / 2, "E - teleport, Space - pause");
                         refresh();
 
-                        Game game(_height, _width, filename);
+                        Game game(_height - 2, _width - 2, filename);
                         int score = game.main_loop(hard_level, speed_of_game);
 
                         move((y_max - _height) / 2 - 3, (x_max - _width) / 2);
@@ -106,7 +106,8 @@ void Menu::main_loop(std::string name, int speed_of_game) {
                         clean();
                 }
                 else if (ch == 2) {
-                        Editor editor(_height-3, _width);
+                        clean();
+                        Editor editor(_height, _width);
                         editor.main_loop();
                         clean();
                 }

@@ -1,15 +1,15 @@
 #include "Editor.h"
 
 Editor::Editor(int height, int width) {
-        level_height = height;
-        level_width = width;
+        level_height = height-5;
+        level_width = width-2;
         int y_max, x_max;
         getmaxyx(stdscr, y_max, x_max);
-        editorwin = newwin(height+3, width+2, (y_max - height - 2) / 2, (x_max - width - 2) / 2);
+        editorwin = newwin(height, width, (y_max - height) / 2, (x_max - width) / 2);
         wborder(editorwin, '|', '|', '-', '-', '+', '+', '+', '+');
         for (int i = 0; i < level_height; i++) {
                 field.push_back({});
-                for (int j = 0; j < width; j++) {
+                for (int j = 0; j < level_width; j++) {
                         field[i].push_back(1);
                 }
         }
