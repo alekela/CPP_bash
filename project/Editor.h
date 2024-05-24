@@ -25,6 +25,10 @@ public:
 
         void save();
 
+        std::string print_save_message();
+
+        bool filenamecheck(std::string filename, int add);
+
         void draw(int y, int x, int counter, int flag);
 };
 

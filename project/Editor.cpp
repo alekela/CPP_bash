@@ -27,6 +27,23 @@ void Editor::print_error_message() {
         wrefresh(editorwin);
 }
 
+std::string Editor::print_save_message() {
+        keypad(stdscr, TRUE);
+        nocbreak();
+        echo();
+        mvwprintw(editorwin, 32, 1, "Save as:");
+        wmove(editorwin, 32, 10);
+        std::string name;
+        char ch = wgetch(editorwin);
+        while (ch != '\n') {
+                name.push_back(ch);
+                ch = wgetch(editorwin);
+        }
+        noecho();
+        cbreak();
+        return name;
+}
+
 bool Editor::check() {
         int pacman_c = 0;
         int bullet_c = 0;
@@ -99,22 +116,46 @@ void Editor::main_loop(){
         wrefresh(editorwin);
 }
 
-void Editor::save() {
-        int levels_amount = 0;
+
+bool Editor::filenamecheck(std::string filename, int add) {
+        std::string name = filename;
+        if (add != 0) {
+                name += " (";
+                name += std::to_string(add);
+                name += ")";
+        }
         DIR * dir;
         struct dirent * entry;
         dir = opendir("Levels/");
         while ((entry = readdir(dir)) != NULL) {
-                levels_amount++;
+                std::string tmp = entry->d_name;
+                if (tmp.compare(name) == 0) {
+                        closedir(dir);
+                        return true;
+                }
         }
-        levels_amount -= 2;
         closedir(dir);
+        return false;
+}
+
+void Editor::save() {
         std::string filename;
-        filename += "Levels/level";
-        filename += std::to_string(levels_amount+1);
-        filename += ".txt";
+        filename = print_save_message();
+
+        int filename_add = 0;
+        while(filenamecheck(filename, filename_add)) {
+                filename_add++;
+        }
+        if (filename_add != 0) {
+                filename += " (";
+                filename += std::to_string(filename_add);
+                filename += ")";
+        }
         std::ofstream file;
-        file.open(filename);
+        std::string path;
+        path = "Levels/";
+        path += filename;
+        file.open(path);
         for (int i = 0; i < level_height; i++) {
                 for (int j = 0; j < level_width; j++) {
                         file << field[i][j];
